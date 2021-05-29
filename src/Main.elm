@@ -24,6 +24,8 @@ init = Model [] ""
 
 type Msg = SubmitPrediction 
             | PredictionInput String
+            | SetStateRight Int
+            | SetStateWrong Int
 
 update : Msg -> Model -> Model
 update msg model = 
@@ -36,6 +38,10 @@ update msg model =
         PredictionInput input -> 
             { model | formInput = input }
 
+        SetStateRight _ -> model
+
+        SetStateWrong _ -> model
+
 -- VIEW
 view : Model -> Html Msg
 view model =
@@ -43,15 +49,24 @@ view model =
     div []
         [ input [ placeholder "Prediction", value model.formInput, onInput PredictionInput] [],
             button [onClick SubmitPrediction, value "Bet"] [text "BET"],
-
-          if not (List.isEmpty model.predictionList) then 
-            ol [] (createList model)
-          else 
-            text ""
+            div [][createListItem {name = "Test", state = Unknown}],
+            div [class "prediction-list"](createList model)
         ]         
 
 createList: Model -> List (Html Msg)
 createList model =
-    List.map (\pred -> li [][text pred.name]) model.predictionList
+    List.map createListItem model.predictionList
 
-    
+createListItem: Prediction -> Html Msg
+createListItem pred =
+    p [](createListContent pred)
+
+createListContent: Prediction -> List (Html Msg)
+createListContent pred =
+    (case pred.state of
+       Unknown -> [text pred.name,text "⚫"]
+
+       Right -> [text pred.name,text "🟢"]
+
+       Wrong -> [text pred.name,text "🔴"]
+     ) ++ [button [][text "Right"], button [][text "Wrong"]]
