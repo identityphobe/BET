@@ -3,6 +3,7 @@
     "source-directories": [
         "src"
     ],
+    "version": "0.1.0",
     "elm-version": "0.19.1",
     "dependencies": {
         "direct": {

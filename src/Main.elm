@@ -1,50 +1,57 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, text)
-
+import Html exposing (..)
+import Html.Attributes exposing (..)
+import Html.Events exposing (onInput, onClick)
 
 -- MAIN
 
-main : Program Int Model Msg
-main =
-  Browser.element
-    { init = init
-    , view = view
-    , update = update
-    , subscriptions = subscriptions
-    }
-
+main = Browser.sandbox { init = init, update = update, view = view }
 
 -- MODEL
 
-type alias Model = { currentTime : Int }
+type alias Model = {predictionList: List Prediction, formInput: String}
 
-init : Int -> ( Model, Cmd Msg )
-init currentTime =
-  ( { currentTime = currentTime }
-  , Cmd.none
-  )
+type alias Prediction = { name: String, state: PredictionState}
 
+type PredictionState = Unknown | Right | Wrong
+
+init: Model
+init = Model [] ""
 
 -- UPDATE
 
-type Msg = NoOp
+type Msg = SubmitPrediction 
+            | PredictionInput String
 
-update : Msg -> Model -> ( Model, Cmd Msg )
-update _ model =
-  ( model, Cmd.none )
+update : Msg -> Model -> Model
+update msg model = 
+    case msg of 
+        SubmitPrediction -> 
+            {   predictionList = model.predictionList ++ [{name = model.formInput, state = Unknown}]
+            ,   formInput = ""  
+            }
 
+        PredictionInput input -> 
+            { model | formInput = input }
 
 -- VIEW
-
 view : Model -> Html Msg
 view model =
-  text (String.fromInt model.currentTime)
 
+    div []
+        [ input [ placeholder "Prediction", value model.formInput, onInput PredictionInput] [],
+            button [onClick SubmitPrediction, value "Bet"] [text "BET"],
 
--- SUBSCRIPTIONS
+          if not (List.isEmpty model.predictionList) then 
+            ol [] (createList model)
+          else 
+            text ""
+        ]         
 
-subscriptions : Model -> Sub Msg
-subscriptions _ =
-  Sub.none
+createList: Model -> List (Html Msg)
+createList model =
+    List.map (\pred -> li [][text pred.name]) model.predictionList
+
+    
