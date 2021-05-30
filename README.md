@@ -19,4 +19,4 @@ BET wants you to make bets against yourself. Your only wager is what you think i
 
 1. Unlike sites like [Metaculus](https://www.metaculus.com/questions/) and [Good Judgement Open](https://www.gjopen.com/), BET is not interested in the state of the world but the state of you that inhabits that world.
 2. Test the predictions in good faith. The results received would be much enjoyable and meaningful that way.
-3. Have fun! BET is less about the truth, and more about the curiosity, surprise, and enjoyment felt along the path towards truth.
+3. Have fun! BET is less about the truth, and more about the curiosity, surprise, and enjoyment felt along the way.

@@ -4,13 +4,21 @@
     <meta charset="UTF-8">
     <title>Main</title>
     <script src="main.js"></script>
+    <link rel="stylesheet" type="text/css" href="main.css" />
 </head>
 
 <body>
-    <div id="app"></div>
+    <div id="myapp"></div>
     <script>
         var app = Elm.Main.init({
-            node: document.getElementById('app')
+            node: document.getElementById('myapp')
+        });
+
+        app.ports.storePredictions.subscribe(function (predictions) {
+            requestAnimationFrame(() => {
+                console.log("Predictions: ", JSON.stringify(predictions));
+            })
+
         });
     </script>
 </body>
