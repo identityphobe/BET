@@ -1,9 +1,11 @@
 module Main exposing (..)
 
 import Browser
+import Debug
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)
+import Json.Decode as Decode exposing (Decoder, Error(..), decodeString, field, int, map3, string)
 import Json.Encode as Encode
 import Ports
 import Utils
@@ -11,9 +13,9 @@ import Utils
 
 
 -- MAIN
--- main: Program flags Model Msg
 
 
+main : Program (Maybe String) Model Msg
 main =
     Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
 
@@ -36,27 +38,33 @@ type PredictionState
     | Wrong
 
 
-init : () -> ( Model, Cmd Msg )
-init _ =
-    ( { predictionList = [], formInput = "", predictionsCreated = 0 }, Cmd.none )
+init : Maybe String -> ( Model, Cmd Msg )
+init flags =
+    case flags of
+        Just predictionsJson ->
+            -- TODO: build a full decoder that encodes predicitonsCreated
+            ( { predictionList = decodePredictionList predictionsJson, formInput = "", predictionsCreated = 0 }, Cmd.none )
+
+        Nothing ->
+            ( { predictionList = [], formInput = "", predictionsCreated = 0 }, Cmd.none )
 
 
 savePredictions : List Prediction -> Cmd Msg
 savePredictions predictions =
-    Encode.list predictionEncoder predictions |> Encode.encode 0 |> Ports.storePredictions
+    Encode.list encodePredictions predictions |> Encode.encode 0 |> Ports.storePredictions
 
 
-predictionEncoder : Prediction -> Encode.Value
-predictionEncoder prediction =
+encodePredictions : Prediction -> Encode.Value
+encodePredictions prediction =
     Encode.object
         [ ( "id", Encode.int prediction.id )
         , ( "name", Encode.string prediction.name )
-        , ( "state", predictionStateEncoder prediction.state )
+        , ( "state", encodePredictionState prediction.state )
         ]
 
 
-predictionStateEncoder : PredictionState -> Encode.Value
-predictionStateEncoder state =
+encodePredictionState : PredictionState -> Encode.Value
+encodePredictionState state =
     case state of
         Unknown ->
             Encode.string "Unknown"
@@ -66,6 +74,61 @@ predictionStateEncoder state =
 
         Wrong ->
             Encode.string "Wrong"
+
+
+
+-- decoder for prediction list
+
+
+decodePredictionList : String -> List Prediction
+decodePredictionList predictionsJson =
+    let
+        decodedJson =
+            decodeString predictionListDecoder predictionsJson
+    in
+    case decodedJson of
+        Ok decodedPredictionList ->
+            decodedPredictionList
+
+        -- TODO: Error handling
+        Err _ ->
+            []
+
+
+predictionListDecoder : Decoder (List Prediction)
+predictionListDecoder =
+    Decode.list predictionDecoder
+
+
+predictionDecoder : Decoder Prediction
+predictionDecoder =
+    map3 Prediction (field "id" int) (field "name" string) (field "state" predictionStateDecoder)
+
+
+predictionStateDecoder : Decoder PredictionState
+predictionStateDecoder =
+    Decode.string |> Decode.andThen predictionStateFromString
+
+
+predictionStateFromString : String -> Decoder PredictionState
+predictionStateFromString string =
+    case string of
+        "Unknown" ->
+            Decode.succeed Unknown
+
+        "Right" ->
+            Decode.succeed Right
+
+        "Wrong" ->
+            Decode.succeed Wrong
+
+        _ ->
+            Decode.fail ("Invalid prediction state: " ++ string)
+
+
+decodeStoredPredictions : String -> String
+decodeStoredPredictions predictionsJson =
+    "Received by elm: " ++ predictionsJson
 
 
 
@@ -80,6 +143,7 @@ type Msg
 
 
 -- TODO: Remove repetition when trying to send the new model to local storage. Possible solution: sequentially run Cmd
+--       Maybe, return a tuple that contains the model-generating function and the savePredictions function that uses that same function
 
 
 update : Msg -> Model -> ( Model, Cmd Msg )
@@ -91,7 +155,7 @@ update msg model =
             )
 
         PredictionInput input ->
-            ( { model | formInput = input }, savePredictions (createModelAfterSubmission { model | formInput = input }).predictionList )
+            ( { model | formInput = input }, savePredictions { model | formInput = input }.predictionList )
 
         SetState id state ->
             ( setState id state model, savePredictions (setState id state model).predictionList )

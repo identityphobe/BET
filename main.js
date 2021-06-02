@@ -4355,6 +4355,10 @@ function _Browser_load(url)
 		}
 	}));
 }
+var $elm$core$Maybe$Just = function (a) {
+	return {$: 'Just', a: a};
+};
+var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $elm$core$Basics$EQ = {$: 'EQ'};
 var $elm$core$Basics$GT = {$: 'GT'};
 var $elm$core$Basics$LT = {$: 'LT'};
@@ -4458,10 +4462,6 @@ var $elm$json$Json$Decode$OneOf = function (a) {
 };
 var $elm$core$Basics$False = {$: 'False'};
 var $elm$core$Basics$add = _Basics_add;
-var $elm$core$Maybe$Just = function (a) {
-	return {$: 'Just', a: a};
-};
-var $elm$core$Maybe$Nothing = {$: 'Nothing'};
 var $elm$core$String$all = _String_all;
 var $elm$core$Basics$and = _Basics_and;
 var $elm$core$Basics$append = _Utils_append;
@@ -5144,19 +5144,75 @@ var $elm$core$Task$perform = F2(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
 var $elm$browser$Browser$element = _Browser_element;
+var $elm$json$Json$Decode$decodeString = _Json_runOnString;
+var $elm$json$Json$Decode$list = _Json_decodeList;
+var $author$project$Main$Prediction = F3(
+	function (id, name, state) {
+		return {id: id, name: name, state: state};
+	});
+var $elm$json$Json$Decode$field = _Json_decodeField;
+var $elm$json$Json$Decode$int = _Json_decodeInt;
+var $elm$json$Json$Decode$map3 = _Json_map3;
+var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $author$project$Main$Right = {$: 'Right'};
+var $author$project$Main$Unknown = {$: 'Unknown'};
+var $author$project$Main$Wrong = {$: 'Wrong'};
+var $elm$json$Json$Decode$fail = _Json_fail;
+var $author$project$Main$predictionStateFromString = function (string) {
+	switch (string) {
+		case 'Unknown':
+			return $elm$json$Json$Decode$succeed($author$project$Main$Unknown);
+		case 'Right':
+			return $elm$json$Json$Decode$succeed($author$project$Main$Right);
+		case 'Wrong':
+			return $elm$json$Json$Decode$succeed($author$project$Main$Wrong);
+		default:
+			return $elm$json$Json$Decode$fail('Invalid prediction state: ' + string);
+	}
+};
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$Main$predictionStateDecoder = A2($elm$json$Json$Decode$andThen, $author$project$Main$predictionStateFromString, $elm$json$Json$Decode$string);
+var $author$project$Main$predictionDecoder = A4(
+	$elm$json$Json$Decode$map3,
+	$author$project$Main$Prediction,
+	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int),
+	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
+	A2($elm$json$Json$Decode$field, 'state', $author$project$Main$predictionStateDecoder));
+var $author$project$Main$predictionListDecoder = $elm$json$Json$Decode$list($author$project$Main$predictionDecoder);
+var $author$project$Main$decodePredictionList = function (predictionsJson) {
+	var decodedJson = A2($elm$json$Json$Decode$decodeString, $author$project$Main$predictionListDecoder, predictionsJson);
+	if (decodedJson.$ === 'Ok') {
+		var decodedPredictionList = decodedJson.a;
+		return decodedPredictionList;
+	} else {
+		return _List_Nil;
+	}
+};
 var $elm$core$Platform$Cmd$batch = _Platform_batch;
 var $elm$core$Platform$Cmd$none = $elm$core$Platform$Cmd$batch(_List_Nil);
-var $author$project$Main$init = function (_v0) {
-	return _Utils_Tuple2(
-		{formInput: '', predictionList: _List_Nil, predictionsCreated: 0},
-		$elm$core$Platform$Cmd$none);
+var $author$project$Main$init = function (flags) {
+	if (flags.$ === 'Just') {
+		var predictionsJson = flags.a;
+		return _Utils_Tuple2(
+			{
+				formInput: '',
+				predictionList: $author$project$Main$decodePredictionList(predictionsJson),
+				predictionsCreated: 0
+			},
+			$elm$core$Platform$Cmd$none);
+	} else {
+		return _Utils_Tuple2(
+			{formInput: '', predictionList: _List_Nil, predictionsCreated: 0},
+			$elm$core$Platform$Cmd$none);
+	}
 };
+var $elm$json$Json$Decode$null = _Json_decodeNull;
+var $elm$json$Json$Decode$oneOf = _Json_oneOf;
 var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Main$subscriptions = function (_v0) {
 	return $elm$core$Platform$Sub$none;
 };
-var $author$project$Main$Unknown = {$: 'Unknown'};
 var $author$project$Main$createModelAfterSubmission = function (model) {
 	return {
 		formInput: '',
@@ -5169,15 +5225,17 @@ var $author$project$Main$createModelAfterSubmission = function (model) {
 		predictionsCreated: model.predictionsCreated + 1
 	};
 };
-var $elm$json$Json$Encode$list = F2(
-	function (func, entries) {
-		return _Json_wrap(
-			A3(
-				$elm$core$List$foldl,
-				_Json_addEntry(func),
-				_Json_emptyArray(_Utils_Tuple0),
-				entries));
-	});
+var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Main$encodePredictionState = function (state) {
+	switch (state.$) {
+		case 'Unknown':
+			return $elm$json$Json$Encode$string('Unknown');
+		case 'Right':
+			return $elm$json$Json$Encode$string('Right');
+		default:
+			return $elm$json$Json$Encode$string('Wrong');
+	}
+};
 var $elm$json$Json$Encode$int = _Json_wrap;
 var $elm$json$Json$Encode$object = function (pairs) {
 	return _Json_wrap(
@@ -5192,18 +5250,7 @@ var $elm$json$Json$Encode$object = function (pairs) {
 			_Json_emptyObject(_Utils_Tuple0),
 			pairs));
 };
-var $elm$json$Json$Encode$string = _Json_wrap;
-var $author$project$Main$predictionStateEncoder = function (state) {
-	switch (state.$) {
-		case 'Unknown':
-			return $elm$json$Json$Encode$string('Unknown');
-		case 'Right':
-			return $elm$json$Json$Encode$string('Right');
-		default:
-			return $elm$json$Json$Encode$string('Wrong');
-	}
-};
-var $author$project$Main$predictionEncoder = function (prediction) {
+var $author$project$Main$encodePredictions = function (prediction) {
 	return $elm$json$Json$Encode$object(
 		_List_fromArray(
 			[
@@ -5215,16 +5262,25 @@ var $author$project$Main$predictionEncoder = function (prediction) {
 				$elm$json$Json$Encode$string(prediction.name)),
 				_Utils_Tuple2(
 				'state',
-				$author$project$Main$predictionStateEncoder(prediction.state))
+				$author$project$Main$encodePredictionState(prediction.state))
 			]));
 };
+var $elm$json$Json$Encode$list = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				$elm$core$List$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
 var $author$project$Ports$storePredictions = _Platform_outgoingPort('storePredictions', $elm$json$Json$Encode$string);
 var $author$project$Main$savePredictions = function (predictions) {
 	return $author$project$Ports$storePredictions(
 		A2(
 			$elm$json$Json$Encode$encode,
 			0,
-			A2($elm$json$Json$Encode$list, $author$project$Main$predictionEncoder, predictions)));
+			A2($elm$json$Json$Encode$list, $author$project$Main$encodePredictions, predictions)));
 };
 var $author$project$Utils$findAndUpdate = F3(
 	function (predicate, update, list) {
@@ -5275,10 +5331,9 @@ var $author$project$Main$update = F2(
 						model,
 						{formInput: input}),
 					$author$project$Main$savePredictions(
-						$author$project$Main$createModelAfterSubmission(
-							_Utils_update(
-								model,
-								{formInput: input})).predictionList));
+						_Utils_update(
+							model,
+							{formInput: input}).predictionList));
 			default:
 				var id = msg.a;
 				var state = msg.b;
@@ -5301,12 +5356,10 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			$elm$json$Json$Encode$string(string));
 	});
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
-var $author$project$Main$Right = {$: 'Right'};
 var $author$project$Main$SetState = F2(
 	function (a, b) {
 		return {$: 'SetState', a: a, b: b};
 	});
-var $author$project$Main$Wrong = {$: 'Wrong'};
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -5407,12 +5460,10 @@ var $elm$html$Html$Events$stopPropagationOn = F2(
 			event,
 			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
 	});
-var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$at = F2(
 	function (fields, decoder) {
 		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
 	});
-var $elm$json$Json$Decode$string = _Json_decodeString;
 var $elm$html$Html$Events$targetValue = A2(
 	$elm$json$Json$Decode$at,
 	_List_fromArray(
@@ -5475,4 +5526,9 @@ var $author$project$Main$view = function (model) {
 var $author$project$Main$main = $elm$browser$Browser$element(
 	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
-	$elm$json$Json$Decode$succeed(_Utils_Tuple0))(0)}});}(this));
+	$elm$json$Json$Decode$oneOf(
+		_List_fromArray(
+			[
+				$elm$json$Json$Decode$null($elm$core$Maybe$Nothing),
+				A2($elm$json$Json$Decode$map, $elm$core$Maybe$Just, $elm$json$Json$Decode$string)
+			])))(0)}});}(this));

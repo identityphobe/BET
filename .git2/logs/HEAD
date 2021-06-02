@@ -1,0 +1,5 @@
+0000000000000000000000000000000000000000 27844ad67cb53d6a4c9276a508ef23a609026d75 identityphobe <identityphobe@tutanota.com> 1622264039 +0800	commit (initial): initialize elm
+27844ad67cb53d6a4c9276a508ef23a609026d75 e3439388a0992798b944bb58f1715813fdd2493f identityphobe <identityphobe@tutanota.com> 1622285392 +0800	commit: Add very basic functionality
+e3439388a0992798b944bb58f1715813fdd2493f 4c8fa38050d37b96ed79f6b548228175325cc05c identityphobe <identityphobe@tutanota.com> 1622319659 +0800	commit: Add non-functional buttons to submit bet result
+4c8fa38050d37b96ed79f6b548228175325cc05c 3df2e3fade993487a3076741458ae5abb2e23af5 identityphobe <identityphobe@tutanota.com> 1622328567 +0800	commit: Add state change buttons
+3df2e3fade993487a3076741458ae5abb2e23af5 c698daea9f84103f3af3bed631e8dc4ea781da2b identityphobe <identityphobe@tutanota.com> 1622356776 +0800	commit: Add rudimentary port prototype
