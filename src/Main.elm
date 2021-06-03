@@ -1,7 +1,8 @@
 module Main exposing (..)
 
+-- import Debug
+
 import Browser
-import Debug
 import Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (onClick, onInput)

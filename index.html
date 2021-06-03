@@ -1,34 +1,35 @@
 <html>
 
 <head>
-    <meta charset="UTF-8">
-    <title>Main</title>
-    <script src="main.js"></script>
-    <link rel="stylesheet" type="text/css" href="main.css" />
+	<meta charset="UTF-8">
+	<title>Main</title>
+	<script src="main.js"></script>
+	<link rel="stylesheet" type="text/css" href="main.css" />
+	<link rel="manifest" href="/manifest.json">
 </head>
 
 <body>
-    <div id="myapp"></div>
-    <script>
-        var storedPredictions = localStorage.getItem('predictions-app-save');
-        console.log("Retrieved predictions: ", storedPredictions);
-        var startingState = storedPredictions ? JSON.parse(storedPredictions) : null;
+	<div id="myapp"></div>
+	<script>
+		var storedPredictions = localStorage.getItem('predictions-app-save');
+		console.log("Retrieved predictions: ", storedPredictions);
+		var startingState = storedPredictions ? JSON.parse(storedPredictions) : null;
 
-        var app = Elm.Main.init({
-            node: document.getElementById('myapp'),
-            flags: startingState,
-        });
+		var app = Elm.Main.init({
+			node: document.getElementById('myapp'),
+			flags: startingState,
+		});
 
-        app.ports.storePredictions.subscribe(function (predictions) {
-            if (predictions.length > 0) {
-                var predictionsJson = JSON.stringify(predictions);
-                localStorage.setItem('predictions-app-save', predictionsJson);
-                console.log("Saved state: ", predictionsJson);
-            }
+		app.ports.storePredictions.subscribe(function (predictions) {
+			if (predictions.length > 0) {
+				var predictionsJson = JSON.stringify(predictions);
+				localStorage.setItem('predictions-app-save', predictionsJson);
+				console.log("Saved state: ", predictionsJson);
+			}
 
 
-        });
-    </script>
+		});
+	</script>
 </body>
 
 </html>
