@@ -4,7 +4,7 @@ module Main exposing (..)
 
 import Browser
 import Html exposing (..)
-import Html.Attributes exposing (..)
+import Html.Attributes as Attributes exposing (class, id, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Json.Decode as Decode exposing (Decoder, Error(..), decodeString, field, int, map3, string)
 import Json.Encode as Encode
@@ -203,7 +203,7 @@ view model =
 
 inputView : Model -> Html Msg
 inputView model =
-    div [ class "input-container" ] [ input [ class "action-input", placeholder "I'm having difficulty with...", value model.formInput, onInput PredictionInput ] [] ]
+    div [ class "input-container" ] [ input [ class "action-input", placeholder "I'm having difficulty with...", value model.formInput, onInput PredictionInput ] [], input [ type_ "range", Attributes.min "1", Attributes.max "5" ] [] ]
 
 
 createList : Model -> List (Html Msg)

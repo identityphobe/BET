@@ -5447,6 +5447,8 @@ var $author$project$Main$createList = function (model) {
 };
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$html$Html$Attributes$max = $elm$html$Html$Attributes$stringProperty('max');
+var $elm$html$Html$Attributes$min = $elm$html$Html$Attributes$stringProperty('min');
 var $elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
@@ -5479,6 +5481,7 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
 };
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
+var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$inputView = function (model) {
 	return A2(
@@ -5497,6 +5500,15 @@ var $author$project$Main$inputView = function (model) {
 						$elm$html$Html$Attributes$placeholder('I\'m having difficulty with...'),
 						$elm$html$Html$Attributes$value(model.formInput),
 						$elm$html$Html$Events$onInput($author$project$Main$PredictionInput)
+					]),
+				_List_Nil),
+				A2(
+				$elm$html$Html$input,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$type_('range'),
+						$elm$html$Html$Attributes$min('1'),
+						$elm$html$Html$Attributes$max('5')
 					]),
 				_List_Nil)
 			]));
