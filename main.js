@@ -5143,7 +5143,7 @@ var $elm$core$Task$perform = F2(
 			$elm$core$Task$Perform(
 				A2($elm$core$Task$map, toMessage, task)));
 	});
-var $elm$browser$Browser$element = _Browser_element;
+var $elm$browser$Browser$document = _Browser_document;
 var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $elm$json$Json$Decode$list = _Json_decodeList;
 var $author$project$Main$Prediction = F3(
@@ -5480,50 +5480,73 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 };
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
-var $author$project$Main$view = function (model) {
+var $author$project$Main$inputView = function (model) {
 	return A2(
 		$elm$html$Html$div,
-		_List_Nil,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('input-container')
+			]),
 		_List_fromArray(
 			[
 				A2(
 				$elm$html$Html$input,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$placeholder('Prediction'),
+						$elm$html$Html$Attributes$class('action-input'),
+						$elm$html$Html$Attributes$placeholder('I\'m having difficulty with...'),
 						$elm$html$Html$Attributes$value(model.formInput),
 						$elm$html$Html$Events$onInput($author$project$Main$PredictionInput)
 					]),
-				_List_Nil),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onClick($author$project$Main$SubmitPrediction),
-						$elm$html$Html$Attributes$value('Bet')
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('BET')
-					])),
-				A2(
-				$elm$html$Html$div,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$author$project$Main$createListItem(
-						{id: 0, name: 'Test', state: $author$project$Main$Unknown})
-					])),
-				A2(
-				$elm$html$Html$div,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('prediction-list')
-					]),
-				$author$project$Main$createList(model))
+				_List_Nil)
 			]));
 };
-var $author$project$Main$main = $elm$browser$Browser$element(
+var $author$project$Main$view = function (model) {
+	return {
+		body: _List_fromArray(
+			[
+				A2(
+				$elm$html$Html$div,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$id('app-container')
+					]),
+				_List_fromArray(
+					[
+						$author$project$Main$inputView(model),
+						A2(
+						$elm$html$Html$input,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$placeholder('Prediction'),
+								$elm$html$Html$Attributes$value(model.formInput),
+								$elm$html$Html$Events$onInput($author$project$Main$PredictionInput)
+							]),
+						_List_Nil),
+						A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick($author$project$Main$SubmitPrediction),
+								$elm$html$Html$Attributes$value('Bet')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('BET')
+							])),
+						A2(
+						$elm$html$Html$div,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('prediction-list')
+							]),
+						$author$project$Main$createList(model))
+					]))
+			]),
+		title: 'BET'
+	};
+};
+var $author$project$Main$main = $elm$browser$Browser$document(
 	{init: $author$project$Main$init, subscriptions: $author$project$Main$subscriptions, update: $author$project$Main$update, view: $author$project$Main$view});
 _Platform_export({'Main':{'init':$author$project$Main$main(
 	$elm$json$Json$Decode$oneOf(

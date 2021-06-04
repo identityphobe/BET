@@ -10,14 +10,12 @@
 </head>
 
 <body>
-	<div id="myapp"></div>
 	<script>
 		var storedPredictions = localStorage.getItem('predictions-app-save');
 		console.log("Retrieved predictions: ", storedPredictions);
 		var startingState = storedPredictions ? JSON.parse(storedPredictions) : null;
 
 		var app = Elm.Main.init({
-			node: document.getElementById('myapp'),
 			flags: startingState,
 		});
 
@@ -27,8 +25,6 @@
 				localStorage.setItem('predictions-app-save', predictionsJson);
 				console.log("Saved state: ", predictionsJson);
 			}
-
-
 		});
 	</script>
 </body>

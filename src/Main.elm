@@ -18,7 +18,7 @@ import Utils
 
 main : Program (Maybe String) Model Msg
 main =
-    Browser.element { init = init, update = update, view = view, subscriptions = subscriptions }
+    Browser.document { init = init, update = update, view = view, subscriptions = subscriptions }
 
 
 
@@ -181,14 +181,29 @@ setState idx state model =
 -- VIEW
 
 
-view : Model -> Html Msg
+type alias Document msg =
+    { title : String
+    , body : List (Html msg)
+    }
+
+
+view : Model -> Document Msg
 view model =
-    div []
-        [ input [ placeholder "Prediction", value model.formInput, onInput PredictionInput ] []
-        , button [ onClick SubmitPrediction, value "Bet" ] [ text "BET" ]
-        , div [] [ createListItem { id = 0, name = "Test", state = Unknown } ]
-        , div [ class "prediction-list" ] (createList model)
+    { title = "BET"
+    , body =
+        [ div [ id "app-container" ]
+            [ inputView model
+            , input [ placeholder "Prediction", value model.formInput, onInput PredictionInput ] []
+            , button [ onClick SubmitPrediction, value "Bet" ] [ text "BET" ]
+            , div [ class "prediction-list" ] (createList model)
+            ]
         ]
+    }
+
+
+inputView : Model -> Html Msg
+inputView model =
+    div [ class "input-container" ] [ input [ class "action-input", placeholder "I'm having difficulty with...", value model.formInput, onInput PredictionInput ] [] ]
 
 
 createList : Model -> List (Html Msg)
