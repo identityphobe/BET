@@ -26,7 +26,7 @@ main =
 
 
 type alias Model =
-    { predictionList : List Prediction, formInput : String, predictionsCreated : Int }
+    { predictionList : List Prediction, formInput : String, rangeInput : Int, predictionsCreated : Int }
 
 
 type alias Prediction =
@@ -44,10 +44,10 @@ init flags =
     case flags of
         Just predictionsJson ->
             -- TODO: build a full decoder that encodes predicitonsCreated
-            ( { predictionList = decodePredictionList predictionsJson, formInput = "", predictionsCreated = 0 }, Cmd.none )
+            ( { predictionList = decodePredictionList predictionsJson, formInput = "", rangeInput = 3, predictionsCreated = 0 }, Cmd.none )
 
         Nothing ->
-            ( { predictionList = [], formInput = "", predictionsCreated = 0 }, Cmd.none )
+            ( { predictionList = [], formInput = "", rangeInput = 3, predictionsCreated = 0 }, Cmd.none )
 
 
 savePredictions : List Prediction -> Cmd Msg
@@ -134,12 +134,14 @@ decodeStoredPredictions predictionsJson =
 
 
 -- UPDATE
+-- TODO: The inputs Msg are best named as verbs
 
 
 type Msg
     = SubmitPrediction
     | PredictionInput String
     | SetState Int PredictionState
+    | RangeInput String
 
 
 
@@ -156,7 +158,10 @@ update msg model =
             )
 
         PredictionInput input ->
-            ( { model | formInput = input }, savePredictions { model | formInput = input }.predictionList )
+            ( { model | formInput = input }, savePredictions model.predictionList )
+
+        RangeInput input ->
+            ( { model | rangeInput = String.toInt input |> Maybe.withDefault 0 }, savePredictions model.predictionList )
 
         SetState id state ->
             ( setState id state model, savePredictions (setState id state model).predictionList )
@@ -166,6 +171,7 @@ createModelAfterSubmission : Model -> Model
 createModelAfterSubmission model =
     { predictionList = model.predictionList ++ [ { id = model.predictionsCreated, name = model.formInput, state = Unknown } ]
     , formInput = ""
+    , rangeInput = 3
     , predictionsCreated = model.predictionsCreated + 1
     }
 
@@ -203,7 +209,55 @@ view model =
 
 inputView : Model -> Html Msg
 inputView model =
-    div [ class "input-container" ] [ input [ class "action-input", placeholder "I'm having difficulty with...", value model.formInput, onInput PredictionInput ] [], input [ type_ "range", Attributes.min "1", Attributes.max "5" ] [] ]
+    div [ class "input-container" ]
+        [ input [ class "action-input", placeholder "I think...", value model.formInput, onInput PredictionInput ] []
+        , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| setDynDifficultyText model.rangeInput ] ] ]
+        , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
+        ]
+
+
+setDynDifficultyText : Int -> String
+setDynDifficultyText difficulty =
+    case difficulty of
+        1 ->
+            "EASY"
+
+        2 ->
+            "DOABLE"
+
+        3 ->
+            "DIFFICULT"
+
+        4 ->
+            "VERY DIFFICULT"
+
+        5 ->
+            "IMPOSSIBLE"
+
+        _ ->
+            "???"
+
+
+setDifficultyClass : Int -> String
+setDifficultyClass difficulty =
+    case difficulty of
+        1 ->
+            "easy"
+
+        2 ->
+            "doable"
+
+        3 ->
+            "difficult"
+
+        4 ->
+            "very-difficult"
+
+        5 ->
+            "impossible"
+
+        _ ->
+            "unknown"
 
 
 createList : Model -> List (Html Msg)

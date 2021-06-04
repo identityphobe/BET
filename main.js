@@ -5197,12 +5197,13 @@ var $author$project$Main$init = function (flags) {
 			{
 				formInput: '',
 				predictionList: $author$project$Main$decodePredictionList(predictionsJson),
-				predictionsCreated: 0
+				predictionsCreated: 0,
+				rangeInput: 3
 			},
 			$elm$core$Platform$Cmd$none);
 	} else {
 		return _Utils_Tuple2(
-			{formInput: '', predictionList: _List_Nil, predictionsCreated: 0},
+			{formInput: '', predictionList: _List_Nil, predictionsCreated: 0, rangeInput: 3},
 			$elm$core$Platform$Cmd$none);
 	}
 };
@@ -5222,7 +5223,8 @@ var $author$project$Main$createModelAfterSubmission = function (model) {
 				[
 					{id: model.predictionsCreated, name: model.formInput, state: $author$project$Main$Unknown}
 				])),
-		predictionsCreated: model.predictionsCreated + 1
+		predictionsCreated: model.predictionsCreated + 1,
+		rangeInput: 3
 	};
 };
 var $elm$json$Json$Encode$string = _Json_wrap;
@@ -5316,6 +5318,15 @@ var $author$project$Main$setState = F3(
 					model.predictionList)
 			});
 	});
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -5330,10 +5341,19 @@ var $author$project$Main$update = F2(
 					_Utils_update(
 						model,
 						{formInput: input}),
-					$author$project$Main$savePredictions(
-						_Utils_update(
-							model,
-							{formInput: input}).predictionList));
+					$author$project$Main$savePredictions(model.predictionList));
+			case 'RangeInput':
+				var input = msg.a;
+				return _Utils_Tuple2(
+					_Utils_update(
+						model,
+						{
+							rangeInput: A2(
+								$elm$core$Maybe$withDefault,
+								0,
+								$elm$core$String$toInt(input))
+						}),
+					$author$project$Main$savePredictions(model.predictionList));
 			default:
 				var id = msg.a;
 				var state = msg.b;
@@ -5447,6 +5467,9 @@ var $author$project$Main$createList = function (model) {
 };
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$input = _VirtualDom_node('input');
+var $author$project$Main$RangeInput = function (a) {
+	return {$: 'RangeInput', a: a};
+};
 var $elm$html$Html$Attributes$max = $elm$html$Html$Attributes$stringProperty('max');
 var $elm$html$Html$Attributes$min = $elm$html$Html$Attributes$stringProperty('min');
 var $elm$html$Html$Events$alwaysStop = function (x) {
@@ -5481,6 +5504,40 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
 };
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
+var $author$project$Main$setDifficultyClass = function (difficulty) {
+	switch (difficulty) {
+		case 1:
+			return 'easy';
+		case 2:
+			return 'doable';
+		case 3:
+			return 'difficult';
+		case 4:
+			return 'very-difficult';
+		case 5:
+			return 'impossible';
+		default:
+			return 'unknown';
+	}
+};
+var $author$project$Main$setDynDifficultyText = function (difficulty) {
+	switch (difficulty) {
+		case 1:
+			return 'EASY';
+		case 2:
+			return 'DOABLE';
+		case 3:
+			return 'DIFFICULT';
+		case 4:
+			return 'VERY DIFFICULT';
+		case 5:
+			return 'IMPOSSIBLE';
+		default:
+			return '???';
+	}
+};
+var $elm$html$Html$span = _VirtualDom_node('span');
+var $elm$html$Html$strong = _VirtualDom_node('strong');
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$inputView = function (model) {
@@ -5497,18 +5554,46 @@ var $author$project$Main$inputView = function (model) {
 				_List_fromArray(
 					[
 						$elm$html$Html$Attributes$class('action-input'),
-						$elm$html$Html$Attributes$placeholder('I\'m having difficulty with...'),
+						$elm$html$Html$Attributes$placeholder('I think...'),
 						$elm$html$Html$Attributes$value(model.formInput),
 						$elm$html$Html$Events$onInput($author$project$Main$PredictionInput)
 					]),
 				_List_Nil),
+				A2(
+				$elm$html$Html$p,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('...is '),
+						A2(
+						$elm$html$Html$span,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class(
+								$author$project$Main$setDifficultyClass(model.rangeInput))
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$strong,
+								_List_Nil,
+								_List_fromArray(
+									[
+										$elm$html$Html$text(
+										$author$project$Main$setDynDifficultyText(model.rangeInput))
+									]))
+							]))
+					])),
 				A2(
 				$elm$html$Html$input,
 				_List_fromArray(
 					[
 						$elm$html$Html$Attributes$type_('range'),
 						$elm$html$Html$Attributes$min('1'),
-						$elm$html$Html$Attributes$max('5')
+						$elm$html$Html$Attributes$max('5'),
+						$elm$html$Html$Attributes$value(
+						$elm$core$String$fromInt(model.rangeInput)),
+						$elm$html$Html$Events$onInput($author$project$Main$RangeInput)
 					]),
 				_List_Nil)
 			]));
