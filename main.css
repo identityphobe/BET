@@ -87,18 +87,27 @@ input[type="range"] {
 .prediction-container {
   width: 350px;
   margin: 10px auto;
+  padding-bottom: 10px;
   background-color: #fffdfd;
   border-radius: 5px;
-  height: 93px;
+  height: auto;
   text-align: center;
 }
 
 .prediction-name {
-  font-size: 24px;
+  font-size: 18px;
   line-height: 28px;
-  padding: 22px;
+  max-width: 80%;
+  margin: 0px auto;
+  /* margin: 5px; */
+  padding-top: 20px;
+  /* padding: 22px; */
 }
 
 .input-error {
   color: red;
+}
+
+.match-versus-text {
+  font-size: 9px;
 }

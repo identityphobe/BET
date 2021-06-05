@@ -336,7 +336,7 @@ inputView model =
     let
         defaultInputContainer =
             [ input [ id "action-input", placeholder "I think...", value model.formInput, onInput PredictionInput ] []
-            , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| setDynDifficultyText model.rangeInput ] ] ]
+            , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyTextFromInt model.rangeInput ] ] ]
             , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
             , button [ id "submitButton", onClick SubmitPrediction ] [ text "Test It" ]
 
@@ -355,7 +355,7 @@ inputView model =
 
 
 -- [ input [ class "action-input", placeholder "I think...", value model.formInput, onInput PredictionInput ] []
--- , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| setDynDifficultyText model.rangeInput ] ] ]
+-- , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyTextFromInt model.rangeInput ] ] ]
 -- , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
 -- , button [ id "submitButton", onClick SubmitPrediction ] [ text "Test It" ]
 -- -- if not isEmpty(model.inputError) then
@@ -363,8 +363,8 @@ inputView model =
 -- ]
 
 
-setDynDifficultyText : Int -> String
-setDynDifficultyText difficulty =
+difficultyTextFromInt : Int -> String
+difficultyTextFromInt difficulty =
     case difficulty of
         1 ->
             "EASY"
@@ -383,6 +383,37 @@ setDynDifficultyText difficulty =
 
         _ ->
             "???"
+
+
+
+-- this function is dependent on difficultyTextFromInt
+-- maybe I should change this to be independent of that function
+
+
+difficultyTextFromDifficulty : Difficulty -> String
+difficultyTextFromDifficulty difficulty =
+    case difficulty of
+        DifficultyUnknown ->
+            difficultyTextFromInt 0
+
+        Easy ->
+            difficultyTextFromInt 1
+
+        Doable ->
+            difficultyTextFromInt 2
+
+        Difficult ->
+            difficultyTextFromInt 3
+
+        VeryDifficult ->
+            difficultyTextFromInt 4
+
+        Impossible ->
+            difficultyTextFromInt 5
+
+
+
+-- class here refers to CSS class
 
 
 setDifficultyClass : Int -> String
@@ -424,7 +455,16 @@ createListItem pred =
 
 createListContent : Prediction -> List (Html Msg)
 createListContent pred =
-    [ p [ class "prediction-name" ] [ text pred.name ] ]
+    [ p [ class "prediction-name" ] [ text pred.name ], span [ class "match-container" ] [ createMatchTexts pred ] ]
+
+
+createMatchTexts : Prediction -> Html Msg
+createMatchTexts pred =
+    let
+        ( expectedDifficulty, actualDifficulty ) =
+            pred.difficulty
+    in
+    p [ class "match-versus-text" ] [ text <| difficultyTextFromDifficulty expectedDifficulty, text " VS ", text <| difficultyTextFromDifficulty actualDifficulty, text " = ", text "I was ", text " ???" ]
 
 
 

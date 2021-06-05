@@ -5525,6 +5525,22 @@ var $elm$core$List$append = F2(
 	});
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
+var $author$project$Main$difficultyTextFromInt = function (difficulty) {
+	switch (difficulty) {
+		case 1:
+			return 'EASY';
+		case 2:
+			return 'DOABLE';
+		case 3:
+			return 'DIFFICULT';
+		case 4:
+			return 'VERY DIFFICULT';
+		case 5:
+			return 'IMPOSSIBLE';
+		default:
+			return '???';
+	}
+};
 var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$html$Html$Attributes$max = $elm$html$Html$Attributes$stringProperty('max');
 var $elm$html$Html$Attributes$min = $elm$html$Html$Attributes$stringProperty('min');
@@ -5594,22 +5610,6 @@ var $author$project$Main$setDifficultyClass = function (difficulty) {
 			return 'unknown';
 	}
 };
-var $author$project$Main$setDynDifficultyText = function (difficulty) {
-	switch (difficulty) {
-		case 1:
-			return 'EASY';
-		case 2:
-			return 'DOABLE';
-		case 3:
-			return 'DIFFICULT';
-		case 4:
-			return 'VERY DIFFICULT';
-		case 5:
-			return 'IMPOSSIBLE';
-		default:
-			return '???';
-	}
-};
 var $elm$html$Html$span = _VirtualDom_node('span');
 var $elm$html$Html$strong = _VirtualDom_node('strong');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
@@ -5650,7 +5650,7 @@ var $author$project$Main$inputView = function (model) {
 							_List_fromArray(
 								[
 									$elm$html$Html$text(
-									$author$project$Main$setDynDifficultyText(model.rangeInput))
+									$author$project$Main$difficultyTextFromInt(model.rangeInput))
 								]))
 						]))
 				])),
@@ -5701,6 +5701,44 @@ var $author$project$Main$inputView = function (model) {
 						]))
 				])));
 };
+var $author$project$Main$difficultyTextFromDifficulty = function (difficulty) {
+	switch (difficulty.$) {
+		case 'DifficultyUnknown':
+			return $author$project$Main$difficultyTextFromInt(0);
+		case 'Easy':
+			return $author$project$Main$difficultyTextFromInt(1);
+		case 'Doable':
+			return $author$project$Main$difficultyTextFromInt(2);
+		case 'Difficult':
+			return $author$project$Main$difficultyTextFromInt(3);
+		case 'VeryDifficult':
+			return $author$project$Main$difficultyTextFromInt(4);
+		default:
+			return $author$project$Main$difficultyTextFromInt(5);
+	}
+};
+var $author$project$Main$createMatchTexts = function (pred) {
+	var _v0 = pred.difficulty;
+	var expectedDifficulty = _v0.a;
+	var actualDifficulty = _v0.b;
+	return A2(
+		$elm$html$Html$p,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('match-versus-text')
+			]),
+		_List_fromArray(
+			[
+				$elm$html$Html$text(
+				$author$project$Main$difficultyTextFromDifficulty(expectedDifficulty)),
+				$elm$html$Html$text(' VS '),
+				$elm$html$Html$text(
+				$author$project$Main$difficultyTextFromDifficulty(actualDifficulty)),
+				$elm$html$Html$text(' = '),
+				$elm$html$Html$text('I was '),
+				$elm$html$Html$text(' ???')
+			]));
+};
 var $author$project$Main$createListContent = function (pred) {
 	return _List_fromArray(
 		[
@@ -5713,6 +5751,16 @@ var $author$project$Main$createListContent = function (pred) {
 			_List_fromArray(
 				[
 					$elm$html$Html$text(pred.name)
+				])),
+			A2(
+			$elm$html$Html$span,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('match-container')
+				]),
+			_List_fromArray(
+				[
+					$author$project$Main$createMatchTexts(pred)
 				]))
 		]);
 };
