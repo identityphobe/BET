@@ -1,5 +1,8 @@
 * {
   font-family: "Roboto", sans-serif;
+}
+
+html {
   background-color: EAF3FF;
 }
 
@@ -60,4 +63,9 @@ body {
 
 .impossible {
   color: bf0603;
+}
+
+input[type="range"] {
+  width: 300px;
+  cursor: pointer;
 }
