@@ -392,24 +392,29 @@ difficultyTextFromInt difficulty =
 
 difficultyTextFromDifficulty : Difficulty -> String
 difficultyTextFromDifficulty difficulty =
+    intFromDifficulty difficulty |> difficultyTextFromInt
+
+
+intFromDifficulty : Difficulty -> Int
+intFromDifficulty difficulty =
     case difficulty of
         DifficultyUnknown ->
-            difficultyTextFromInt 0
+            0
 
         Easy ->
-            difficultyTextFromInt 1
+            1
 
         Doable ->
-            difficultyTextFromInt 2
+            2
 
         Difficult ->
-            difficultyTextFromInt 3
+            3
 
         VeryDifficult ->
-            difficultyTextFromInt 4
+            4
 
         Impossible ->
-            difficultyTextFromInt 5
+            5
 
 
 
@@ -438,6 +443,15 @@ setDifficultyClass difficulty =
             "unknown"
 
 
+createPredictionResultText : Difficulty -> Difficulty -> String
+createPredictionResultText expectedDifficulty actualDifficulty =
+    if intFromDifficulty expectedDifficulty >= intFromDifficulty actualDifficulty then
+        "RIGHT"
+
+    else
+        "WRONG"
+
+
 predictionListView : Model -> Html Msg
 predictionListView model =
     div [ id "prediction-list-container" ] (createList model)
@@ -464,7 +478,7 @@ createMatchTexts pred =
         ( expectedDifficulty, actualDifficulty ) =
             pred.difficulty
     in
-    p [ class "match-versus-text" ] [ text <| difficultyTextFromDifficulty expectedDifficulty, text " VS ", text <| difficultyTextFromDifficulty actualDifficulty, text " = ", text "I was ", text " ???" ]
+    p [ class "match-versus-text" ] [ text <| difficultyTextFromDifficulty expectedDifficulty, text " VS ", text <| difficultyTextFromDifficulty actualDifficulty, text " = ", text "I was ", text <| createPredictionResultText actualDifficulty expectedDifficulty ]
 
 
 

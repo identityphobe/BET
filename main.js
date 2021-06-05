@@ -5701,21 +5701,32 @@ var $author$project$Main$inputView = function (model) {
 						]))
 				])));
 };
-var $author$project$Main$difficultyTextFromDifficulty = function (difficulty) {
+var $elm$core$Basics$ge = _Utils_ge;
+var $author$project$Main$intFromDifficulty = function (difficulty) {
 	switch (difficulty.$) {
 		case 'DifficultyUnknown':
-			return $author$project$Main$difficultyTextFromInt(0);
+			return 0;
 		case 'Easy':
-			return $author$project$Main$difficultyTextFromInt(1);
+			return 1;
 		case 'Doable':
-			return $author$project$Main$difficultyTextFromInt(2);
+			return 2;
 		case 'Difficult':
-			return $author$project$Main$difficultyTextFromInt(3);
+			return 3;
 		case 'VeryDifficult':
-			return $author$project$Main$difficultyTextFromInt(4);
+			return 4;
 		default:
-			return $author$project$Main$difficultyTextFromInt(5);
+			return 5;
 	}
+};
+var $author$project$Main$createPredictionResultText = F2(
+	function (expectedDifficulty, actualDifficulty) {
+		return (_Utils_cmp(
+			$author$project$Main$intFromDifficulty(expectedDifficulty),
+			$author$project$Main$intFromDifficulty(actualDifficulty)) > -1) ? 'RIGHT' : 'WRONG';
+	});
+var $author$project$Main$difficultyTextFromDifficulty = function (difficulty) {
+	return $author$project$Main$difficultyTextFromInt(
+		$author$project$Main$intFromDifficulty(difficulty));
 };
 var $author$project$Main$createMatchTexts = function (pred) {
 	var _v0 = pred.difficulty;
@@ -5736,7 +5747,8 @@ var $author$project$Main$createMatchTexts = function (pred) {
 				$author$project$Main$difficultyTextFromDifficulty(actualDifficulty)),
 				$elm$html$Html$text(' = '),
 				$elm$html$Html$text('I was '),
-				$elm$html$Html$text(' ???')
+				$elm$html$Html$text(
+				A2($author$project$Main$createPredictionResultText, actualDifficulty, expectedDifficulty))
 			]));
 };
 var $author$project$Main$createListContent = function (pred) {
