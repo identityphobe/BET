@@ -5363,11 +5363,7 @@ var $author$project$Main$update = F2(
 						A3($author$project$Main$setState, id, state, model).predictionList));
 		}
 	});
-var $author$project$Main$PredictionInput = function (a) {
-	return {$: 'PredictionInput', a: a};
-};
-var $author$project$Main$SubmitPrediction = {$: 'SubmitPrediction'};
-var $elm$html$Html$button = _VirtualDom_node('button');
+var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
 		return A2(
@@ -5375,11 +5371,19 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			key,
 			$elm$json$Json$Encode$string(string));
 	});
+var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
+var $author$project$Main$PredictionInput = function (a) {
+	return {$: 'PredictionInput', a: a};
+};
+var $author$project$Main$RangeInput = function (a) {
+	return {$: 'RangeInput', a: a};
+};
+var $author$project$Main$SubmitPrediction = {$: 'SubmitPrediction'};
+var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
-var $author$project$Main$SetState = F2(
-	function (a, b) {
-		return {$: 'SetState', a: a, b: b};
-	});
+var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$html$Html$Attributes$max = $elm$html$Html$Attributes$stringProperty('max');
+var $elm$html$Html$Attributes$min = $elm$html$Html$Attributes$stringProperty('min');
 var $elm$virtual_dom$VirtualDom$Normal = function (a) {
 	return {$: 'Normal', a: a};
 };
@@ -5397,81 +5401,6 @@ var $elm$html$Html$Events$onClick = function (msg) {
 		'click',
 		$elm$json$Json$Decode$succeed(msg));
 };
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
-var $author$project$Main$createListContent = function (pred) {
-	return _Utils_ap(
-		function () {
-			var _v0 = pred.state;
-			switch (_v0.$) {
-				case 'Unknown':
-					return _List_fromArray(
-						[
-							$elm$html$Html$text(pred.name),
-							$elm$html$Html$text('⚫')
-						]);
-				case 'Right':
-					return _List_fromArray(
-						[
-							$elm$html$Html$text(pred.name),
-							$elm$html$Html$text('🟢')
-						]);
-				default:
-					return _List_fromArray(
-						[
-							$elm$html$Html$text(pred.name),
-							$elm$html$Html$text('🔴')
-						]);
-			}
-		}(),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onClick(
-						A2($author$project$Main$SetState, pred.id, $author$project$Main$Right))
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Right')
-					])),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Events$onClick(
-						A2($author$project$Main$SetState, pred.id, $author$project$Main$Wrong))
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Wrong')
-					]))
-			]));
-};
-var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
-var $elm$html$Html$p = _VirtualDom_node('p');
-var $author$project$Main$createListItem = function (pred) {
-	return A2(
-		$elm$html$Html$p,
-		_List_fromArray(
-			[
-				$elm$html$Html$Attributes$id(
-				'prediction-' + $elm$core$String$fromInt(pred.id))
-			]),
-		$author$project$Main$createListContent(pred));
-};
-var $author$project$Main$createList = function (model) {
-	return A2($elm$core$List$map, $author$project$Main$createListItem, model.predictionList);
-};
-var $elm$html$Html$div = _VirtualDom_node('div');
-var $elm$html$Html$input = _VirtualDom_node('input');
-var $author$project$Main$RangeInput = function (a) {
-	return {$: 'RangeInput', a: a};
-};
-var $elm$html$Html$Attributes$max = $elm$html$Html$Attributes$stringProperty('max');
-var $elm$html$Html$Attributes$min = $elm$html$Html$Attributes$stringProperty('min');
 var $elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
@@ -5503,6 +5432,7 @@ var $elm$html$Html$Events$onInput = function (tagger) {
 			$elm$html$Html$Events$alwaysStop,
 			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
 };
+var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
 var $author$project$Main$setDifficultyClass = function (difficulty) {
 	switch (difficulty) {
@@ -5538,6 +5468,8 @@ var $author$project$Main$setDynDifficultyText = function (difficulty) {
 };
 var $elm$html$Html$span = _VirtualDom_node('span');
 var $elm$html$Html$strong = _VirtualDom_node('strong');
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$inputView = function (model) {
@@ -5595,8 +5527,57 @@ var $author$project$Main$inputView = function (model) {
 						$elm$core$String$fromInt(model.rangeInput)),
 						$elm$html$Html$Events$onInput($author$project$Main$RangeInput)
 					]),
-				_List_Nil)
+				_List_Nil),
+				A2(
+				$elm$html$Html$button,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$id('submitButton'),
+						$elm$html$Html$Events$onClick($author$project$Main$SubmitPrediction)
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text('Test It')
+					]))
 			]));
+};
+var $author$project$Main$createListContent = function (pred) {
+	return _List_fromArray(
+		[
+			A2(
+			$elm$html$Html$p,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('prediction-name')
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text(pred.name)
+				]))
+		]);
+};
+var $author$project$Main$createListItem = function (pred) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$id(
+				'prediction-' + $elm$core$String$fromInt(pred.id)),
+				$elm$html$Html$Attributes$class('prediction-container')
+			]),
+		$author$project$Main$createListContent(pred));
+};
+var $author$project$Main$createList = function (model) {
+	return A2($elm$core$List$map, $author$project$Main$createListItem, model.predictionList);
+};
+var $author$project$Main$predictionListView = function (model) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$id('prediction-list-container')
+			]),
+		$author$project$Main$createList(model));
 };
 var $author$project$Main$view = function (model) {
 	return {
@@ -5611,33 +5592,7 @@ var $author$project$Main$view = function (model) {
 				_List_fromArray(
 					[
 						$author$project$Main$inputView(model),
-						A2(
-						$elm$html$Html$input,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$placeholder('Prediction'),
-								$elm$html$Html$Attributes$value(model.formInput),
-								$elm$html$Html$Events$onInput($author$project$Main$PredictionInput)
-							]),
-						_List_Nil),
-						A2(
-						$elm$html$Html$button,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick($author$project$Main$SubmitPrediction),
-								$elm$html$Html$Attributes$value('Bet')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('BET')
-							])),
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class('prediction-list')
-							]),
-						$author$project$Main$createList(model))
+						$author$project$Main$predictionListView(model)
 					]))
 			]),
 		title: 'BET'

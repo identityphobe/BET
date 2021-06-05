@@ -3,7 +3,7 @@
 }
 
 html {
-  background-color: EAF3FF;
+  background-color: #eaf3ff;
 }
 
 button {
@@ -15,7 +15,7 @@ body {
 }
 
 #app-container {
-  background-color: EAF3FF;
+  background-color: #eaf3ff;
   height: 100%;
 }
 
@@ -26,19 +26,13 @@ body {
 .action-input {
   width: 325px;
   height: 51px;
-  margin: 25px auto;
-  margin-bottom: 15px;
+  margin: 70px auto;
+  margin-bottom: 20px;
   text-align: center;
   background: #f7f7f7;
-  /* box-shadow: 0px 0px 0px rgba(0, 0, 0, 0); */
   border-radius: 5px;
-
   font-size: 18px;
   line-height: 21px;
-
-  /* identical to box height */
-
-  /* color: rgba(0, 0, 0, 0.2); */
 }
 
 .action-input::placeholder {
@@ -46,26 +40,61 @@ body {
 }
 
 .easy {
-  color: 16db93;
+  color: #16db93;
 }
 
 .doable {
-  color: 3a86ff;
+  color: #3a86ff;
 }
 
 .difficult {
-  color: ffbe0b;
+  color: #ffbe0b;
 }
 
 .very-difficult {
-  color: fb5607;
+  color: #fb5607;
 }
 
 .impossible {
-  color: bf0603;
+  color: #bf0603;
 }
 
 input[type="range"] {
   width: 300px;
+  margin: 30px auto;
   cursor: pointer;
+  display: block;
+}
+
+#submitButton {
+  background-color: #5e6ef9;
+  color: white;
+  margin: 20px auto;
+  font-size: 20px;
+  border: none;
+  width: 150px;
+  height: 50px;
+
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  border-radius: 10px;
+}
+
+#submitButton:hover {
+  background-color: #7e89ed;
+  font-size: 22px;
+}
+
+.prediction-container {
+  width: 350px;
+  margin: 10px auto;
+  background-color: #fffdfd;
+  border-radius: 5px;
+  height: 93px;
+  text-align: center;
+}
+
+.prediction-name {
+  font-size: 24px;
+  line-height: 28px;
+  padding: 22px;
 }

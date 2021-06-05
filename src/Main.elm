@@ -199,9 +199,9 @@ view model =
     , body =
         [ div [ id "app-container" ]
             [ inputView model
-            , input [ placeholder "Prediction", value model.formInput, onInput PredictionInput ] []
-            , button [ onClick SubmitPrediction, value "Bet" ] [ text "BET" ]
-            , div [ class "prediction-list" ] (createList model)
+            , predictionListView model
+
+            -- , div [ class "prediction-list" ] (createList model)
             ]
         ]
     }
@@ -213,6 +213,7 @@ inputView model =
         [ input [ class "action-input", placeholder "I think...", value model.formInput, onInput PredictionInput ] []
         , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| setDynDifficultyText model.rangeInput ] ] ]
         , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
+        , button [ id "submitButton", onClick SubmitPrediction ] [ text "Test It" ]
         ]
 
 
@@ -260,6 +261,11 @@ setDifficultyClass difficulty =
             "unknown"
 
 
+predictionListView : Model -> Html Msg
+predictionListView model =
+    div [ id "prediction-list-container" ] (createList model)
+
+
 createList : Model -> List (Html Msg)
 createList model =
     List.map createListItem model.predictionList
@@ -267,25 +273,22 @@ createList model =
 
 createListItem : Prediction -> Html Msg
 createListItem pred =
-    p [ id ("prediction-" ++ String.fromInt pred.id) ] (createListContent pred)
+    div [ id ("prediction-" ++ String.fromInt pred.id), class "prediction-container" ] (createListContent pred)
 
 
 createListContent : Prediction -> List (Html Msg)
 createListContent pred =
-    (case pred.state of
-        Unknown ->
-            [ text pred.name, text "⚫" ]
-
-        Right ->
-            [ text pred.name, text "🟢" ]
-
-        Wrong ->
-            [ text pred.name, text "🔴" ]
-    )
-        ++ [ button [ onClick (SetState pred.id Right) ] [ text "Right" ], button [ onClick (SetState pred.id Wrong) ] [ text "Wrong" ] ]
+    [ p [ class "prediction-name" ] [ text pred.name ] ]
 
 
 
+-- case pred.state of
+--     Unknown ->
+--         [ p [] [ text pred.name ] ]
+--     Right ->
+--         [ text pred.name, text "🟢" ]
+--     Wrong ->
+--         [ text pred.name, text "🔴" ]
 -- SUBSCRIPTIONS
 
 
