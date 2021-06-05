@@ -6,7 +6,7 @@ import Browser
 import Html exposing (..)
 import Html.Attributes as Attributes exposing (class, id, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
-import Json.Decode as Decode exposing (Decoder, Error(..), decodeString, field, int, map3, string)
+import Json.Decode as Decode exposing (Decoder, Error(..), decodeString, field, index, int, map4, string)
 import Json.Encode as Encode
 import Ports
 import Utils
@@ -30,13 +30,22 @@ type alias Model =
 
 
 type alias Prediction =
-    { id : Int, name : String, state : PredictionState }
+    { id : Int, name : String, state : PredictionState, difficulty : ( Difficulty, Difficulty ) }
 
 
 type PredictionState
     = Unknown
     | Right
     | Wrong
+
+
+type Difficulty
+    = DifficultyUnknown
+    | Easy
+    | Doable
+    | Difficult
+    | VeryDifficult
+    | Impossible
 
 
 init : Maybe String -> ( Model, Cmd Msg )
@@ -61,7 +70,43 @@ encodePredictions prediction =
         [ ( "id", Encode.int prediction.id )
         , ( "name", Encode.string prediction.name )
         , ( "state", encodePredictionState prediction.state )
+        , ( "difficulty", encodeDifficulty prediction.difficulty )
         ]
+
+
+
+-- this encodes the tuple of Difficulty within model
+
+
+encodeDifficulty : ( Difficulty, Difficulty ) -> Encode.Value
+encodeDifficulty ( a, b ) =
+    Encode.list difficultyEncoder [ a, b ]
+
+
+
+-- this encodes a Difficulty variant into string
+
+
+difficultyEncoder : Difficulty -> Encode.Value
+difficultyEncoder difficulty =
+    case difficulty of
+        DifficultyUnknown ->
+            Encode.string "Unknown"
+
+        Easy ->
+            Encode.string "Easy"
+
+        Doable ->
+            Encode.string "Doable"
+
+        Difficult ->
+            Encode.string "Difficult"
+
+        VeryDifficult ->
+            Encode.string "VeryDifficult"
+
+        Impossible ->
+            Encode.string "Impossible"
 
 
 encodePredictionState : PredictionState -> Encode.Value
@@ -103,7 +148,42 @@ predictionListDecoder =
 
 predictionDecoder : Decoder Prediction
 predictionDecoder =
-    map3 Prediction (field "id" int) (field "name" string) (field "state" predictionStateDecoder)
+    map4 Prediction (field "id" int) (field "name" string) (field "state" predictionStateDecoder) (field "difficulty" <| difficultyDecoder)
+
+
+difficultyDecoder : Decoder ( Difficulty, Difficulty )
+difficultyDecoder =
+    index 0 (Decode.string |> Decode.andThen difficultyFromString)
+        |> Decode.andThen
+            (\firstVal ->
+                index 1 (Decode.string |> Decode.andThen difficultyFromString)
+                    |> Decode.andThen (\secondVal -> Decode.succeed ( firstVal, secondVal ))
+            )
+
+
+difficultyFromString : String -> Decoder Difficulty
+difficultyFromString string =
+    case string of
+        "Unknown" ->
+            Decode.succeed DifficultyUnknown
+
+        "Easy" ->
+            Decode.succeed Easy
+
+        "Doable" ->
+            Decode.succeed Doable
+
+        "Difficult" ->
+            Decode.succeed Difficult
+
+        "VeryDifficult" ->
+            Decode.succeed VeryDifficult
+
+        "Impossible" ->
+            Decode.succeed Impossible
+
+        _ ->
+            Decode.fail ("Invalid difficulty: " ++ string)
 
 
 predictionStateDecoder : Decoder PredictionState
@@ -169,7 +249,11 @@ update msg model =
 
 createModelAfterSubmission : Model -> Model
 createModelAfterSubmission model =
-    { predictionList = model.predictionList ++ [ { id = model.predictionsCreated, name = model.formInput, state = Unknown } ]
+    let
+        expectedDifficulty =
+            convertNumToDifficulty model.rangeInput
+    in
+    { predictionList = model.predictionList ++ [ { id = model.predictionsCreated, name = model.formInput, state = Unknown, difficulty = ( expectedDifficulty, DifficultyUnknown ) } ]
     , formInput = ""
     , rangeInput = 3
     , predictionsCreated = model.predictionsCreated + 1
@@ -181,6 +265,28 @@ setState idx state model =
     { model
         | predictionList = Utils.findAndUpdate (\pred -> pred.id == idx) (\pred -> { pred | state = state }) model.predictionList
     }
+
+
+convertNumToDifficulty : Int -> Difficulty
+convertNumToDifficulty num =
+    case num of
+        1 ->
+            Easy
+
+        2 ->
+            Doable
+
+        3 ->
+            Difficult
+
+        4 ->
+            VeryDifficult
+
+        5 ->
+            Impossible
+
+        _ ->
+            DifficultyUnknown
 
 
 

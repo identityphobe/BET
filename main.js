@@ -5146,18 +5146,62 @@ var $elm$core$Task$perform = F2(
 var $elm$browser$Browser$document = _Browser_document;
 var $elm$json$Json$Decode$decodeString = _Json_runOnString;
 var $elm$json$Json$Decode$list = _Json_decodeList;
-var $author$project$Main$Prediction = F3(
-	function (id, name, state) {
-		return {id: id, name: name, state: state};
+var $author$project$Main$Prediction = F4(
+	function (id, name, state, difficulty) {
+		return {difficulty: difficulty, id: id, name: name, state: state};
 	});
+var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $author$project$Main$Difficult = {$: 'Difficult'};
+var $author$project$Main$DifficultyUnknown = {$: 'DifficultyUnknown'};
+var $author$project$Main$Doable = {$: 'Doable'};
+var $author$project$Main$Easy = {$: 'Easy'};
+var $author$project$Main$Impossible = {$: 'Impossible'};
+var $author$project$Main$VeryDifficult = {$: 'VeryDifficult'};
+var $elm$json$Json$Decode$fail = _Json_fail;
+var $author$project$Main$difficultyFromString = function (string) {
+	switch (string) {
+		case 'Unknown':
+			return $elm$json$Json$Decode$succeed($author$project$Main$DifficultyUnknown);
+		case 'Easy':
+			return $elm$json$Json$Decode$succeed($author$project$Main$Easy);
+		case 'Doable':
+			return $elm$json$Json$Decode$succeed($author$project$Main$Doable);
+		case 'Difficult':
+			return $elm$json$Json$Decode$succeed($author$project$Main$Difficult);
+		case 'VeryDifficult':
+			return $elm$json$Json$Decode$succeed($author$project$Main$VeryDifficult);
+		case 'Impossible':
+			return $elm$json$Json$Decode$succeed($author$project$Main$Impossible);
+		default:
+			return $elm$json$Json$Decode$fail('Invalid difficulty: ' + string);
+	}
+};
+var $elm$json$Json$Decode$index = _Json_decodeIndex;
+var $elm$json$Json$Decode$string = _Json_decodeString;
+var $author$project$Main$difficultyDecoder = A2(
+	$elm$json$Json$Decode$andThen,
+	function (firstVal) {
+		return A2(
+			$elm$json$Json$Decode$andThen,
+			function (secondVal) {
+				return $elm$json$Json$Decode$succeed(
+					_Utils_Tuple2(firstVal, secondVal));
+			},
+			A2(
+				$elm$json$Json$Decode$index,
+				1,
+				A2($elm$json$Json$Decode$andThen, $author$project$Main$difficultyFromString, $elm$json$Json$Decode$string)));
+	},
+	A2(
+		$elm$json$Json$Decode$index,
+		0,
+		A2($elm$json$Json$Decode$andThen, $author$project$Main$difficultyFromString, $elm$json$Json$Decode$string)));
 var $elm$json$Json$Decode$field = _Json_decodeField;
 var $elm$json$Json$Decode$int = _Json_decodeInt;
-var $elm$json$Json$Decode$map3 = _Json_map3;
-var $elm$json$Json$Decode$andThen = _Json_andThen;
+var $elm$json$Json$Decode$map4 = _Json_map4;
 var $author$project$Main$Right = {$: 'Right'};
 var $author$project$Main$Unknown = {$: 'Unknown'};
 var $author$project$Main$Wrong = {$: 'Wrong'};
-var $elm$json$Json$Decode$fail = _Json_fail;
 var $author$project$Main$predictionStateFromString = function (string) {
 	switch (string) {
 		case 'Unknown':
@@ -5170,14 +5214,14 @@ var $author$project$Main$predictionStateFromString = function (string) {
 			return $elm$json$Json$Decode$fail('Invalid prediction state: ' + string);
 	}
 };
-var $elm$json$Json$Decode$string = _Json_decodeString;
 var $author$project$Main$predictionStateDecoder = A2($elm$json$Json$Decode$andThen, $author$project$Main$predictionStateFromString, $elm$json$Json$Decode$string);
-var $author$project$Main$predictionDecoder = A4(
-	$elm$json$Json$Decode$map3,
+var $author$project$Main$predictionDecoder = A5(
+	$elm$json$Json$Decode$map4,
 	$author$project$Main$Prediction,
 	A2($elm$json$Json$Decode$field, 'id', $elm$json$Json$Decode$int),
 	A2($elm$json$Json$Decode$field, 'name', $elm$json$Json$Decode$string),
-	A2($elm$json$Json$Decode$field, 'state', $author$project$Main$predictionStateDecoder));
+	A2($elm$json$Json$Decode$field, 'state', $author$project$Main$predictionStateDecoder),
+	A2($elm$json$Json$Decode$field, 'difficulty', $author$project$Main$difficultyDecoder));
 var $author$project$Main$predictionListDecoder = $elm$json$Json$Decode$list($author$project$Main$predictionDecoder);
 var $author$project$Main$decodePredictionList = function (predictionsJson) {
 	var decodedJson = A2($elm$json$Json$Decode$decodeString, $author$project$Main$predictionListDecoder, predictionsJson);
@@ -5214,20 +5258,76 @@ var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Main$subscriptions = function (_v0) {
 	return $elm$core$Platform$Sub$none;
 };
+var $author$project$Main$convertNumToDifficulty = function (num) {
+	switch (num) {
+		case 1:
+			return $author$project$Main$Easy;
+		case 2:
+			return $author$project$Main$Doable;
+		case 3:
+			return $author$project$Main$Difficult;
+		case 4:
+			return $author$project$Main$VeryDifficult;
+		case 5:
+			return $author$project$Main$Impossible;
+		default:
+			return $author$project$Main$DifficultyUnknown;
+	}
+};
 var $author$project$Main$createModelAfterSubmission = function (model) {
+	var expectedDifficulty = $author$project$Main$convertNumToDifficulty(model.rangeInput);
 	return {
 		formInput: '',
 		predictionList: _Utils_ap(
 			model.predictionList,
 			_List_fromArray(
 				[
-					{id: model.predictionsCreated, name: model.formInput, state: $author$project$Main$Unknown}
+					{
+					difficulty: _Utils_Tuple2(expectedDifficulty, $author$project$Main$DifficultyUnknown),
+					id: model.predictionsCreated,
+					name: model.formInput,
+					state: $author$project$Main$Unknown
+				}
 				])),
 		predictionsCreated: model.predictionsCreated + 1,
 		rangeInput: 3
 	};
 };
 var $elm$json$Json$Encode$string = _Json_wrap;
+var $author$project$Main$difficultyEncoder = function (difficulty) {
+	switch (difficulty.$) {
+		case 'DifficultyUnknown':
+			return $elm$json$Json$Encode$string('Unknown');
+		case 'Easy':
+			return $elm$json$Json$Encode$string('Easy');
+		case 'Doable':
+			return $elm$json$Json$Encode$string('Doable');
+		case 'Difficult':
+			return $elm$json$Json$Encode$string('Difficult');
+		case 'VeryDifficult':
+			return $elm$json$Json$Encode$string('VeryDifficult');
+		default:
+			return $elm$json$Json$Encode$string('Impossible');
+	}
+};
+var $elm$json$Json$Encode$list = F2(
+	function (func, entries) {
+		return _Json_wrap(
+			A3(
+				$elm$core$List$foldl,
+				_Json_addEntry(func),
+				_Json_emptyArray(_Utils_Tuple0),
+				entries));
+	});
+var $author$project$Main$encodeDifficulty = function (_v0) {
+	var a = _v0.a;
+	var b = _v0.b;
+	return A2(
+		$elm$json$Json$Encode$list,
+		$author$project$Main$difficultyEncoder,
+		_List_fromArray(
+			[a, b]));
+};
 var $author$project$Main$encodePredictionState = function (state) {
 	switch (state.$) {
 		case 'Unknown':
@@ -5264,18 +5364,12 @@ var $author$project$Main$encodePredictions = function (prediction) {
 				$elm$json$Json$Encode$string(prediction.name)),
 				_Utils_Tuple2(
 				'state',
-				$author$project$Main$encodePredictionState(prediction.state))
+				$author$project$Main$encodePredictionState(prediction.state)),
+				_Utils_Tuple2(
+				'difficulty',
+				$author$project$Main$encodeDifficulty(prediction.difficulty))
 			]));
 };
-var $elm$json$Json$Encode$list = F2(
-	function (func, entries) {
-		return _Json_wrap(
-			A3(
-				$elm$core$List$foldl,
-				_Json_addEntry(func),
-				_Json_emptyArray(_Utils_Tuple0),
-				entries));
-	});
 var $author$project$Ports$storePredictions = _Platform_outgoingPort('storePredictions', $elm$json$Json$Encode$string);
 var $author$project$Main$savePredictions = function (predictions) {
 	return $author$project$Ports$storePredictions(
