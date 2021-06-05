@@ -3,12 +3,15 @@ module Main exposing (..)
 -- import Debug
 
 import Browser
+import Browser.Dom as Dom
 import Html exposing (..)
-import Html.Attributes as Attributes exposing (class, id, placeholder, type_, value)
+import Html.Attributes as Attributes exposing (class, id, placeholder, required, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Json.Decode as Decode exposing (Decoder, Error(..), decodeString, field, index, int, map4, string)
 import Json.Encode as Encode
 import Ports
+import String exposing (isEmpty)
+import Task
 import Utils
 
 
@@ -26,7 +29,7 @@ main =
 
 
 type alias Model =
-    { predictionList : List Prediction, formInput : String, rangeInput : Int, predictionsCreated : Int }
+    { predictionList : List Prediction, formInput : String, rangeInput : Int, inputError : String, predictionsCreated : Int }
 
 
 type alias Prediction =
@@ -53,10 +56,10 @@ init flags =
     case flags of
         Just predictionsJson ->
             -- TODO: build a full decoder that encodes predicitonsCreated
-            ( { predictionList = decodePredictionList predictionsJson, formInput = "", rangeInput = 3, predictionsCreated = 0 }, Cmd.none )
+            ( { predictionList = decodePredictionList predictionsJson, formInput = "", rangeInput = 3, inputError = "", predictionsCreated = 0 }, Cmd.none )
 
         Nothing ->
-            ( { predictionList = [], formInput = "", rangeInput = 3, predictionsCreated = 0 }, Cmd.none )
+            ( { predictionList = [], formInput = "", rangeInput = 3, inputError = "", predictionsCreated = 0 }, Cmd.none )
 
 
 savePredictions : List Prediction -> Cmd Msg
@@ -222,6 +225,7 @@ type Msg
     | PredictionInput String
     | SetState Int PredictionState
     | RangeInput String
+    | EmptyInput
 
 
 
@@ -233,9 +237,10 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SubmitPrediction ->
-            ( createModelAfterSubmission model
-            , savePredictions (createModelAfterSubmission model).predictionList
-            )
+            validateActionInput model
+
+        EmptyInput ->
+            ( model, Cmd.none )
 
         PredictionInput input ->
             ( { model | formInput = input }, savePredictions model.predictionList )
@@ -256,8 +261,21 @@ createModelAfterSubmission model =
     { predictionList = model.predictionList ++ [ { id = model.predictionsCreated, name = model.formInput, state = Unknown, difficulty = ( expectedDifficulty, DifficultyUnknown ) } ]
     , formInput = ""
     , rangeInput = 3
+    , inputError = ""
     , predictionsCreated = model.predictionsCreated + 1
     }
+
+
+validateActionInput : Model -> ( Model, Cmd Msg )
+validateActionInput model =
+    if isEmpty model.formInput then
+        -- TODO: handle error if Dom.focus can't find the id of the element to focus
+        ( { model | inputError = "Are you afraid of nothing?" }, Task.attempt (\_ -> EmptyInput) (Dom.focus "action-input") )
+
+    else
+        ( createModelAfterSubmission model
+        , savePredictions (createModelAfterSubmission model).predictionList
+        )
 
 
 setState : Int -> PredictionState -> Model -> Model
@@ -315,12 +333,34 @@ view model =
 
 inputView : Model -> Html Msg
 inputView model =
+    let
+        defaultInputContainer =
+            [ input [ id "action-input", placeholder "I think...", value model.formInput, onInput PredictionInput ] []
+            , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| setDynDifficultyText model.rangeInput ] ] ]
+            , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
+            , button [ id "submitButton", onClick SubmitPrediction ] [ text "Test It" ]
+
+            -- if not isEmpty(model.inputError) then
+            --     p [][text "test"]
+            ]
+    in
     div [ class "input-container" ]
-        [ input [ class "action-input", placeholder "I think...", value model.formInput, onInput PredictionInput ] []
-        , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| setDynDifficultyText model.rangeInput ] ] ]
-        , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
-        , button [ id "submitButton", onClick SubmitPrediction ] [ text "Test It" ]
-        ]
+        (if isEmpty model.inputError then
+            defaultInputContainer
+
+         else
+            List.append defaultInputContainer <| [ p [ class "input-error" ] [ text model.inputError ] ]
+        )
+
+
+
+-- [ input [ class "action-input", placeholder "I think...", value model.formInput, onInput PredictionInput ] []
+-- , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| setDynDifficultyText model.rangeInput ] ] ]
+-- , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
+-- , button [ id "submitButton", onClick SubmitPrediction ] [ text "Test It" ]
+-- -- if not isEmpty(model.inputError) then
+-- --     p [][text "test"]
+-- ]
 
 
 setDynDifficultyText : Int -> String

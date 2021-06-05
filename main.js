@@ -5240,6 +5240,7 @@ var $author$project$Main$init = function (flags) {
 		return _Utils_Tuple2(
 			{
 				formInput: '',
+				inputError: '',
 				predictionList: $author$project$Main$decodePredictionList(predictionsJson),
 				predictionsCreated: 0,
 				rangeInput: 3
@@ -5247,7 +5248,7 @@ var $author$project$Main$init = function (flags) {
 			$elm$core$Platform$Cmd$none);
 	} else {
 		return _Utils_Tuple2(
-			{formInput: '', predictionList: _List_Nil, predictionsCreated: 0, rangeInput: 3},
+			{formInput: '', inputError: '', predictionList: _List_Nil, predictionsCreated: 0, rangeInput: 3},
 			$elm$core$Platform$Cmd$none);
 	}
 };
@@ -5257,41 +5258,6 @@ var $elm$core$Platform$Sub$batch = _Platform_batch;
 var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Main$subscriptions = function (_v0) {
 	return $elm$core$Platform$Sub$none;
-};
-var $author$project$Main$convertNumToDifficulty = function (num) {
-	switch (num) {
-		case 1:
-			return $author$project$Main$Easy;
-		case 2:
-			return $author$project$Main$Doable;
-		case 3:
-			return $author$project$Main$Difficult;
-		case 4:
-			return $author$project$Main$VeryDifficult;
-		case 5:
-			return $author$project$Main$Impossible;
-		default:
-			return $author$project$Main$DifficultyUnknown;
-	}
-};
-var $author$project$Main$createModelAfterSubmission = function (model) {
-	var expectedDifficulty = $author$project$Main$convertNumToDifficulty(model.rangeInput);
-	return {
-		formInput: '',
-		predictionList: _Utils_ap(
-			model.predictionList,
-			_List_fromArray(
-				[
-					{
-					difficulty: _Utils_Tuple2(expectedDifficulty, $author$project$Main$DifficultyUnknown),
-					id: model.predictionsCreated,
-					name: model.formInput,
-					state: $author$project$Main$Unknown
-				}
-				])),
-		predictionsCreated: model.predictionsCreated + 1,
-		rangeInput: 3
-	};
 };
 var $elm$json$Json$Encode$string = _Json_wrap;
 var $author$project$Main$difficultyEncoder = function (difficulty) {
@@ -5412,6 +5378,83 @@ var $author$project$Main$setState = F3(
 					model.predictionList)
 			});
 	});
+var $author$project$Main$EmptyInput = {$: 'EmptyInput'};
+var $elm$core$Basics$composeL = F3(
+	function (g, f, x) {
+		return g(
+			f(x));
+	});
+var $elm$core$Task$onError = _Scheduler_onError;
+var $elm$core$Task$attempt = F2(
+	function (resultToMessage, task) {
+		return $elm$core$Task$command(
+			$elm$core$Task$Perform(
+				A2(
+					$elm$core$Task$onError,
+					A2(
+						$elm$core$Basics$composeL,
+						A2($elm$core$Basics$composeL, $elm$core$Task$succeed, resultToMessage),
+						$elm$core$Result$Err),
+					A2(
+						$elm$core$Task$andThen,
+						A2(
+							$elm$core$Basics$composeL,
+							A2($elm$core$Basics$composeL, $elm$core$Task$succeed, resultToMessage),
+							$elm$core$Result$Ok),
+						task))));
+	});
+var $author$project$Main$convertNumToDifficulty = function (num) {
+	switch (num) {
+		case 1:
+			return $author$project$Main$Easy;
+		case 2:
+			return $author$project$Main$Doable;
+		case 3:
+			return $author$project$Main$Difficult;
+		case 4:
+			return $author$project$Main$VeryDifficult;
+		case 5:
+			return $author$project$Main$Impossible;
+		default:
+			return $author$project$Main$DifficultyUnknown;
+	}
+};
+var $author$project$Main$createModelAfterSubmission = function (model) {
+	var expectedDifficulty = $author$project$Main$convertNumToDifficulty(model.rangeInput);
+	return {
+		formInput: '',
+		inputError: '',
+		predictionList: _Utils_ap(
+			model.predictionList,
+			_List_fromArray(
+				[
+					{
+					difficulty: _Utils_Tuple2(expectedDifficulty, $author$project$Main$DifficultyUnknown),
+					id: model.predictionsCreated,
+					name: model.formInput,
+					state: $author$project$Main$Unknown
+				}
+				])),
+		predictionsCreated: model.predictionsCreated + 1,
+		rangeInput: 3
+	};
+};
+var $elm$browser$Browser$Dom$focus = _Browser_call('focus');
+var $author$project$Main$validateActionInput = function (model) {
+	return $elm$core$String$isEmpty(model.formInput) ? _Utils_Tuple2(
+		_Utils_update(
+			model,
+			{inputError: 'Are you afraid of nothing?'}),
+		A2(
+			$elm$core$Task$attempt,
+			function (_v0) {
+				return $author$project$Main$EmptyInput;
+			},
+			$elm$browser$Browser$Dom$focus('action-input'))) : _Utils_Tuple2(
+		$author$project$Main$createModelAfterSubmission(model),
+		$author$project$Main$savePredictions(
+			$author$project$Main$createModelAfterSubmission(model).predictionList));
+};
 var $elm$core$Maybe$withDefault = F2(
 	function (_default, maybe) {
 		if (maybe.$ === 'Just') {
@@ -5425,10 +5468,9 @@ var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
 			case 'SubmitPrediction':
-				return _Utils_Tuple2(
-					$author$project$Main$createModelAfterSubmission(model),
-					$author$project$Main$savePredictions(
-						$author$project$Main$createModelAfterSubmission(model).predictionList));
+				return $author$project$Main$validateActionInput(model);
+			case 'EmptyInput':
+				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 'PredictionInput':
 				var input = msg.a;
 				return _Utils_Tuple2(
@@ -5473,6 +5515,14 @@ var $author$project$Main$RangeInput = function (a) {
 	return {$: 'RangeInput', a: a};
 };
 var $author$project$Main$SubmitPrediction = {$: 'SubmitPrediction'};
+var $elm$core$List$append = F2(
+	function (xs, ys) {
+		if (!ys.b) {
+			return xs;
+		} else {
+			return A3($elm$core$List$foldr, $elm$core$List$cons, ys, xs);
+		}
+	});
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
 var $elm$html$Html$input = _VirtualDom_node('input');
@@ -5567,73 +5617,89 @@ var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
 var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$inputView = function (model) {
+	var defaultInputContainer = _List_fromArray(
+		[
+			A2(
+			$elm$html$Html$input,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$id('action-input'),
+					$elm$html$Html$Attributes$placeholder('I think...'),
+					$elm$html$Html$Attributes$value(model.formInput),
+					$elm$html$Html$Events$onInput($author$project$Main$PredictionInput)
+				]),
+			_List_Nil),
+			A2(
+			$elm$html$Html$p,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text('...is '),
+					A2(
+					$elm$html$Html$span,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class(
+							$author$project$Main$setDifficultyClass(model.rangeInput))
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$strong,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text(
+									$author$project$Main$setDynDifficultyText(model.rangeInput))
+								]))
+						]))
+				])),
+			A2(
+			$elm$html$Html$input,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$type_('range'),
+					$elm$html$Html$Attributes$min('1'),
+					$elm$html$Html$Attributes$max('5'),
+					$elm$html$Html$Attributes$value(
+					$elm$core$String$fromInt(model.rangeInput)),
+					$elm$html$Html$Events$onInput($author$project$Main$RangeInput)
+				]),
+			_List_Nil),
+			A2(
+			$elm$html$Html$button,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$id('submitButton'),
+					$elm$html$Html$Events$onClick($author$project$Main$SubmitPrediction)
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Test It')
+				]))
+		]);
 	return A2(
 		$elm$html$Html$div,
 		_List_fromArray(
 			[
 				$elm$html$Html$Attributes$class('input-container')
 			]),
-		_List_fromArray(
-			[
-				A2(
-				$elm$html$Html$input,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$class('action-input'),
-						$elm$html$Html$Attributes$placeholder('I think...'),
-						$elm$html$Html$Attributes$value(model.formInput),
-						$elm$html$Html$Events$onInput($author$project$Main$PredictionInput)
-					]),
-				_List_Nil),
-				A2(
-				$elm$html$Html$p,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('...is '),
-						A2(
-						$elm$html$Html$span,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class(
-								$author$project$Main$setDifficultyClass(model.rangeInput))
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$strong,
-								_List_Nil,
-								_List_fromArray(
-									[
-										$elm$html$Html$text(
-										$author$project$Main$setDynDifficultyText(model.rangeInput))
-									]))
-							]))
-					])),
-				A2(
-				$elm$html$Html$input,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$type_('range'),
-						$elm$html$Html$Attributes$min('1'),
-						$elm$html$Html$Attributes$max('5'),
-						$elm$html$Html$Attributes$value(
-						$elm$core$String$fromInt(model.rangeInput)),
-						$elm$html$Html$Events$onInput($author$project$Main$RangeInput)
-					]),
-				_List_Nil),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$id('submitButton'),
-						$elm$html$Html$Events$onClick($author$project$Main$SubmitPrediction)
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Test It')
-					]))
-			]));
+		$elm$core$String$isEmpty(model.inputError) ? defaultInputContainer : A2(
+			$elm$core$List$append,
+			defaultInputContainer,
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$p,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('input-error')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(model.inputError)
+						]))
+				])));
 };
 var $author$project$Main$createListContent = function (pred) {
 	return _List_fromArray(
