@@ -4,14 +4,18 @@ module Main exposing (..)
 
 import Browser
 import Browser.Dom as Dom
+import Browser.Navigation as Nav
 import Html exposing (..)
-import Html.Attributes as Attributes exposing (class, id, placeholder, required, type_, value)
+import Html.Attributes as Attributes exposing (class, href, id, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Json.Decode as Decode exposing (Decoder, Error(..), decodeString, field, index, int, map4, string)
 import Json.Encode as Encode
+import Platform exposing (Router)
 import Ports
 import String exposing (isEmpty)
 import Task
+import Url
+import Url.Parser as UrlParser exposing (Parser)
 import Utils
 
 
@@ -21,7 +25,7 @@ import Utils
 
 main : Program (Maybe String) Model Msg
 main =
-    Browser.document { init = init, update = update, view = view, subscriptions = subscriptions }
+    Browser.application { init = init, update = update, view = view, subscriptions = subscriptions, onUrlChange = UrlChanged, onUrlRequest = LinkClicked }
 
 
 
@@ -29,7 +33,7 @@ main =
 
 
 type alias Model =
-    { predictionList : List Prediction, formInput : String, rangeInput : Int, inputError : String, predictionsCreated : Int }
+    { predictionList : List Prediction, formInput : String, rangeInput : Int, inputError : String, predictionsCreated : Int, key : Nav.Key, route : Maybe Route }
 
 
 type alias Prediction =
@@ -51,15 +55,26 @@ type Difficulty
     | Impossible
 
 
-init : Maybe String -> ( Model, Cmd Msg )
-init flags =
+type Route
+    = List
+
+
+routeParser : Parser (Route -> a) a
+routeParser =
+    UrlParser.oneOf
+        [ UrlParser.map List (UrlParser.s "list")
+        ]
+
+
+init : Maybe String -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init flags url key =
     case flags of
         Just predictionsJson ->
             -- TODO: build a full decoder that encodes predicitonsCreated
-            ( { predictionList = decodePredictionList predictionsJson, formInput = "", rangeInput = 3, inputError = "", predictionsCreated = 0 }, Cmd.none )
+            ( { predictionList = decodePredictionList predictionsJson, formInput = "", rangeInput = 3, inputError = "", predictionsCreated = 0, key = key, route = UrlParser.parse routeParser url }, Cmd.none )
 
         Nothing ->
-            ( { predictionList = [], formInput = "", rangeInput = 3, inputError = "", predictionsCreated = 0 }, Cmd.none )
+            ( { predictionList = [], formInput = "", rangeInput = 3, inputError = "", predictionsCreated = 0, key = key, route = UrlParser.parse routeParser url }, Cmd.none )
 
 
 savePredictions : List Prediction -> Cmd Msg
@@ -226,6 +241,8 @@ type Msg
     | SetState Int PredictionState
     | RangeInput String
     | EmptyInput
+    | LinkClicked Browser.UrlRequest
+    | UrlChanged Url.Url
 
 
 
@@ -251,6 +268,19 @@ update msg model =
         SetState id state ->
             ( setState id state model, savePredictions (setState id state model).predictionList )
 
+        LinkClicked urlRequest ->
+            case urlRequest of
+                Browser.Internal url ->
+                    ( model, Nav.pushUrl model.key (Url.toString url) )
+
+                Browser.External href ->
+                    ( model, Nav.load href )
+
+        UrlChanged url ->
+            ( { model | route = UrlParser.parse routeParser url }
+            , Cmd.none
+            )
+
 
 createModelAfterSubmission : Model -> Model
 createModelAfterSubmission model =
@@ -258,11 +288,12 @@ createModelAfterSubmission model =
         expectedDifficulty =
             convertNumToDifficulty model.rangeInput
     in
-    { predictionList = model.predictionList ++ [ { id = model.predictionsCreated, name = model.formInput, state = Unknown, difficulty = ( expectedDifficulty, DifficultyUnknown ) } ]
-    , formInput = ""
-    , rangeInput = 3
-    , inputError = ""
-    , predictionsCreated = model.predictionsCreated + 1
+    { model
+        | predictionList = model.predictionList ++ [ { id = model.predictionsCreated, name = model.formInput, state = Unknown, difficulty = ( expectedDifficulty, DifficultyUnknown ) } ]
+        , formInput = ""
+        , rangeInput = 3
+        , inputError = ""
+        , predictionsCreated = model.predictionsCreated + 1
     }
 
 
@@ -319,15 +350,42 @@ type alias Document msg =
 
 view : Model -> Document Msg
 view model =
-    { title = "BET"
-    , body =
-        [ div [ id "app-container" ]
-            [ inputView model
-            , predictionListView model
+    -- (Debug.log <|
+    --     Url.toString model.route
+    -- )
+    let
+        title =
+            case model.route of
+                Just List ->
+                    "WHAT????"
 
-            -- , div [ class "prediction-list" ] (createList model)
-            ]
-        ]
+                Nothing ->
+                    "YEAHPPPPP"
+    in
+    { title = title
+    , body =
+        case model.route of
+            Just List ->
+                [ div [ id "app-container" ]
+                    [ li [] [ a [ href "/" ] [ text "/" ] ]
+                    , predictionListView model
+                    ]
+                ]
+
+            Nothing ->
+                [ div [ id "app-container" ]
+                    [ inputView model
+                    , li [] [ a [ href "/list" ] [ text "/list" ] ]
+                    , predictionListView model
+                    ]
+                ]
+
+    -- [ div [ id "app-container" ]
+    --     [ inputView model
+    --     , li [] [ a [ href "/home" ] [ text "/home" ] ]
+    --     , predictionListView model
+    --     ]
+    -- ]
     }
 
 
@@ -348,16 +406,6 @@ inputView model =
          else
             List.append defaultInputContainer <| [ p [ class "input-error" ] [ text model.inputError ] ]
         )
-
-
-
--- [ input [ class "action-input", placeholder "I think...", value model.formInput, onInput PredictionInput ] []
--- , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyStringFromInt model.rangeInput ] ] ]
--- , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
--- , button [ id "submitButton", onClick SubmitPrediction ] [ text "Test It" ]
--- -- if not isEmpty(model.inputError) then
--- --     p [][text "test"]
--- ]
 
 
 difficultyStringFromInt : Int -> String
