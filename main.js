@@ -5891,7 +5891,46 @@ var $elm$url$Url$Parser$parse = F2(
 					url.fragment,
 					$elm$core$Basics$identity)));
 	});
-var $author$project$Main$List = {$: 'List'};
+var $author$project$Main$NewPrediction = {$: 'NewPrediction'};
+var $author$project$Main$ReportPrediction = function (a) {
+	return {$: 'ReportPrediction', a: a};
+};
+var $elm$url$Url$Parser$Internal$Parser = function (a) {
+	return {$: 'Parser', a: a};
+};
+var $elm$core$Maybe$withDefault = F2(
+	function (_default, maybe) {
+		if (maybe.$ === 'Just') {
+			var value = maybe.a;
+			return value;
+		} else {
+			return _default;
+		}
+	});
+var $elm$url$Url$Parser$Query$custom = F2(
+	function (key, func) {
+		return $elm$url$Url$Parser$Internal$Parser(
+			function (dict) {
+				return func(
+					A2(
+						$elm$core$Maybe$withDefault,
+						_List_Nil,
+						A2($elm$core$Dict$get, key, dict)));
+			});
+	});
+var $elm$url$Url$Parser$Query$int = function (key) {
+	return A2(
+		$elm$url$Url$Parser$Query$custom,
+		key,
+		function (stringList) {
+			if (stringList.b && (!stringList.b.b)) {
+				var str = stringList.a;
+				return $elm$core$String$toInt(str);
+			} else {
+				return $elm$core$Maybe$Nothing;
+			}
+		});
+};
 var $elm$url$Url$Parser$Parser = function (a) {
 	return {$: 'Parser', a: a};
 };
@@ -5955,6 +5994,47 @@ var $elm$url$Url$Parser$oneOf = function (parsers) {
 				parsers);
 		});
 };
+var $elm$url$Url$Parser$query = function (_v0) {
+	var queryParser = _v0.a;
+	return $elm$url$Url$Parser$Parser(
+		function (_v1) {
+			var visited = _v1.visited;
+			var unvisited = _v1.unvisited;
+			var params = _v1.params;
+			var frag = _v1.frag;
+			var value = _v1.value;
+			return _List_fromArray(
+				[
+					A5(
+					$elm$url$Url$Parser$State,
+					visited,
+					unvisited,
+					params,
+					frag,
+					value(
+						queryParser(params)))
+				]);
+		});
+};
+var $elm$url$Url$Parser$slash = F2(
+	function (_v0, _v1) {
+		var parseBefore = _v0.a;
+		var parseAfter = _v1.a;
+		return $elm$url$Url$Parser$Parser(
+			function (state) {
+				return A2(
+					$elm$core$List$concatMap,
+					parseAfter,
+					parseBefore(state));
+			});
+	});
+var $elm$url$Url$Parser$questionMark = F2(
+	function (parser, queryParser) {
+		return A2(
+			$elm$url$Url$Parser$slash,
+			parser,
+			$elm$url$Url$Parser$query(queryParser));
+	});
 var $elm$url$Url$Parser$s = function (str) {
 	return $elm$url$Url$Parser$Parser(
 		function (_v0) {
@@ -5986,8 +6066,15 @@ var $author$project$Main$routeParser = $elm$url$Url$Parser$oneOf(
 		[
 			A2(
 			$elm$url$Url$Parser$map,
-			$author$project$Main$List,
-			$elm$url$Url$Parser$s('list'))
+			$author$project$Main$NewPrediction,
+			$elm$url$Url$Parser$s('new')),
+			A2(
+			$elm$url$Url$Parser$map,
+			$author$project$Main$ReportPrediction,
+			A2(
+				$elm$url$Url$Parser$questionMark,
+				$elm$url$Url$Parser$s('report'),
+				$elm$url$Url$Parser$Query$int('id')))
 		]));
 var $author$project$Main$init = F3(
 	function (flags, url, key) {
@@ -6269,15 +6356,6 @@ var $author$project$Main$validateActionInput = function (model) {
 		$author$project$Main$savePredictions(
 			$author$project$Main$createModelAfterSubmission(model).predictionList));
 };
-var $elm$core$Maybe$withDefault = F2(
-	function (_default, maybe) {
-		if (maybe.$ === 'Just') {
-			var value = maybe.a;
-			return value;
-		} else {
-			return _default;
-		}
-	});
 var $author$project$Main$update = F2(
 	function (msg, model) {
 		switch (msg.$) {
@@ -6738,49 +6816,57 @@ var $author$project$Main$predictionListView = function (model) {
 		$author$project$Main$createList(model));
 };
 var $author$project$Main$view = function (model) {
-	var title = function () {
-		var _v2 = model.route;
-		if (_v2.$ === 'Just') {
-			var _v3 = _v2.a;
-			return 'WHAT????';
-		} else {
-			return 'YEAHPPPPP';
-		}
-	}();
 	return {
 		body: function () {
 			var _v0 = model.route;
 			if (_v0.$ === 'Just') {
-				var _v1 = _v0.a;
-				return _List_fromArray(
-					[
-						A2(
-						$elm$html$Html$div,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$id('app-container')
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$li,
-								_List_Nil,
-								_List_fromArray(
-									[
-										A2(
-										$elm$html$Html$a,
-										_List_fromArray(
-											[
-												$elm$html$Html$Attributes$href('/')
-											]),
-										_List_fromArray(
-											[
-												$elm$html$Html$text('/')
-											]))
-									])),
-								$author$project$Main$predictionListView(model)
-							]))
-					]);
+				if (_v0.a.$ === 'NewPrediction') {
+					var _v1 = _v0.a;
+					return _List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$id('app-container')
+								]),
+							_List_fromArray(
+								[
+									A2(
+									$elm$html$Html$li,
+									_List_Nil,
+									_List_fromArray(
+										[
+											A2(
+											$elm$html$Html$a,
+											_List_fromArray(
+												[
+													$elm$html$Html$Attributes$href('/')
+												]),
+											_List_fromArray(
+												[
+													$elm$html$Html$text('/')
+												]))
+										])),
+									$author$project$Main$predictionListView(model)
+								]))
+						]);
+				} else {
+					var idx = _v0.a.a;
+					return _List_fromArray(
+						[
+							A2(
+							$elm$html$Html$div,
+							_List_fromArray(
+								[
+									$elm$html$Html$Attributes$id('app-container')
+								]),
+							_List_fromArray(
+								[
+									$author$project$Main$inputView(model)
+								]))
+						]);
+				}
 			} else {
 				return _List_fromArray(
 					[
@@ -6792,7 +6878,6 @@ var $author$project$Main$view = function (model) {
 							]),
 						_List_fromArray(
 							[
-								$author$project$Main$inputView(model),
 								A2(
 								$elm$html$Html$li,
 								_List_Nil,
@@ -6814,7 +6899,7 @@ var $author$project$Main$view = function (model) {
 					]);
 			}
 		}(),
-		title: title
+		title: 'BET'
 	};
 };
 var $author$project$Main$main = $elm$browser$Browser$application(

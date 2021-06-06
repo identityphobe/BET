@@ -15,7 +15,8 @@ import Ports
 import String exposing (isEmpty)
 import Task
 import Url
-import Url.Parser as UrlParser exposing (Parser)
+import Url.Parser as UrlParser exposing ((</>), (<?>), Parser)
+import Url.Parser.Query as Query
 import Utils
 
 
@@ -56,13 +57,15 @@ type Difficulty
 
 
 type Route
-    = List
+    = NewPrediction
+    | ReportPrediction (Maybe Int)
 
 
 routeParser : Parser (Route -> a) a
 routeParser =
     UrlParser.oneOf
-        [ UrlParser.map List (UrlParser.s "list")
+        [ UrlParser.map NewPrediction (UrlParser.s "new")
+        , UrlParser.map ReportPrediction (UrlParser.s "report" <?> Query.int "id")
         ]
 
 
@@ -353,39 +356,31 @@ view model =
     -- (Debug.log <|
     --     Url.toString model.route
     -- )
-    let
-        title =
-            case model.route of
-                Just List ->
-                    "WHAT????"
-
-                Nothing ->
-                    "YEAHPPPPP"
-    in
-    { title = title
+    { title = "BET"
     , body =
         case model.route of
-            Just List ->
+            Just NewPrediction ->
                 [ div [ id "app-container" ]
                     [ li [] [ a [ href "/" ] [ text "/" ] ]
                     , predictionListView model
                     ]
                 ]
 
-            Nothing ->
+            Just (ReportPrediction idx) ->
                 [ div [ id "app-container" ]
-                    [ inputView model
-                    , li [] [ a [ href "/list" ] [ text "/list" ] ]
-                    , predictionListView model
+                    [ inputView
+                        model
                     ]
                 ]
 
-    -- [ div [ id "app-container" ]
-    --     [ inputView model
-    --     , li [] [ a [ href "/home" ] [ text "/home" ] ]
-    --     , predictionListView model
-    --     ]
-    -- ]
+            -- [ p [] [ text <| "Report yo!" ++ String.fromInt idx ]
+            -- ]
+            Nothing ->
+                [ div [ id "app-container" ]
+                    [ li [] [ a [ href "/list" ] [ text "/list" ] ]
+                    , predictionListView model
+                    ]
+                ]
     }
 
 
