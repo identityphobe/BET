@@ -336,12 +336,9 @@ inputView model =
     let
         defaultInputContainer =
             [ input [ id "action-input", placeholder "I think...", value model.formInput, onInput PredictionInput ] []
-            , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyTextFromInt model.rangeInput ] ] ]
+            , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyStringFromInt model.rangeInput ] ] ]
             , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
             , button [ id "submitButton", onClick SubmitPrediction ] [ text "Test It" ]
-
-            -- if not isEmpty(model.inputError) then
-            --     p [][text "test"]
             ]
     in
     div [ class "input-container" ]
@@ -355,7 +352,7 @@ inputView model =
 
 
 -- [ input [ class "action-input", placeholder "I think...", value model.formInput, onInput PredictionInput ] []
--- , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyTextFromInt model.rangeInput ] ] ]
+-- , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyStringFromInt model.rangeInput ] ] ]
 -- , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
 -- , button [ id "submitButton", onClick SubmitPrediction ] [ text "Test It" ]
 -- -- if not isEmpty(model.inputError) then
@@ -363,8 +360,8 @@ inputView model =
 -- ]
 
 
-difficultyTextFromInt : Int -> String
-difficultyTextFromInt difficulty =
+difficultyStringFromInt : Int -> String
+difficultyStringFromInt difficulty =
     case difficulty of
         1 ->
             "EASY"
@@ -386,13 +383,13 @@ difficultyTextFromInt difficulty =
 
 
 
--- this function is dependent on difficultyTextFromInt
+-- this function is dependent on difficultyStringFromInt
 -- maybe I should change this to be independent of that function
 
 
-difficultyTextFromDifficulty : Difficulty -> String
-difficultyTextFromDifficulty difficulty =
-    intFromDifficulty difficulty |> difficultyTextFromInt
+stringFromDifficulty : Difficulty -> String
+stringFromDifficulty difficulty =
+    intFromDifficulty difficulty |> difficultyStringFromInt
 
 
 intFromDifficulty : Difficulty -> Int
@@ -419,6 +416,7 @@ intFromDifficulty difficulty =
 
 
 -- class here refers to CSS class
+-- difficulty value corresponds to the int value from range slider
 
 
 setDifficultyClass : Int -> String
@@ -452,6 +450,15 @@ createPredictionResultText expectedDifficulty actualDifficulty =
         "WRONG"
 
 
+createPredictionResultSpanEl : Difficulty -> Difficulty -> Html Msg
+createPredictionResultSpanEl expectedDifficulty actualDifficulty =
+    let
+        result =
+            createPredictionResultText expectedDifficulty actualDifficulty
+    in
+    span [ class <| result ] [ text result ]
+
+
 predictionListView : Model -> Html Msg
 predictionListView model =
     div [ id "prediction-list-container" ] (createList model)
@@ -469,7 +476,7 @@ createListItem pred =
 
 createListContent : Prediction -> List (Html Msg)
 createListContent pred =
-    [ p [ class "prediction-name" ] [ text pred.name ], span [ class "match-container" ] [ createMatchTexts pred ] ]
+    [ p [ class "prediction-name" ] [ text pred.name ], p [ class "match-container" ] [ createMatchTexts pred ] ]
 
 
 createMatchTexts : Prediction -> Html Msg
@@ -478,17 +485,33 @@ createMatchTexts pred =
         ( expectedDifficulty, actualDifficulty ) =
             pred.difficulty
     in
-    p [ class "match-versus-text" ] [ text <| difficultyTextFromDifficulty expectedDifficulty, text " VS ", text <| difficultyTextFromDifficulty actualDifficulty, text " = ", text "I was ", text <| createPredictionResultText actualDifficulty expectedDifficulty ]
+    p [ class "match-versus-text" ] [ createDifficultySpanEl expectedDifficulty, span [] [ text "VS" ], createDifficultySpanEl actualDifficulty, span [] [ text " = " ], text "I was ", createPredictionResultSpanEl actualDifficulty expectedDifficulty ]
+
+
+createDifficultySpanEl : Difficulty -> Html Msg
+createDifficultySpanEl difficulty =
+    -- TODO: reduce repetition and clean up css to distinguish difficulty text and difficulty background
+    case difficulty of
+        DifficultyUnknown ->
+            span [ class "unknown match-difficulty-text" ] [ text <| stringFromDifficulty difficulty ]
+
+        Easy ->
+            span [ class "easy match-difficulty-text" ] [ text <| stringFromDifficulty difficulty ]
+
+        Doable ->
+            span [ class "doable match-difficulty-text" ] [ text <| stringFromDifficulty difficulty ]
+
+        Difficult ->
+            span [ class "difficult match-difficulty-text" ] [ text <| stringFromDifficulty difficulty ]
+
+        VeryDifficult ->
+            span [ class "very-difficult match-difficulty-text" ] [ text <| stringFromDifficulty difficulty ]
+
+        Impossible ->
+            span [ class "impossible match-difficulty-text" ] [ text <| stringFromDifficulty difficulty ]
 
 
 
--- case pred.state of
---     Unknown ->
---         [ p [] [ text pred.name ] ]
---     Right ->
---         [ text pred.name, text "🟢" ]
---     Wrong ->
---         [ text pred.name, text "🔴" ]
 -- SUBSCRIPTIONS
 
 

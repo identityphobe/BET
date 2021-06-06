@@ -5525,7 +5525,7 @@ var $elm$core$List$append = F2(
 	});
 var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
-var $author$project$Main$difficultyTextFromInt = function (difficulty) {
+var $author$project$Main$difficultyStringFromInt = function (difficulty) {
 	switch (difficulty) {
 		case 1:
 			return 'EASY';
@@ -5650,7 +5650,7 @@ var $author$project$Main$inputView = function (model) {
 							_List_fromArray(
 								[
 									$elm$html$Html$text(
-									$author$project$Main$difficultyTextFromInt(model.rangeInput))
+									$author$project$Main$difficultyStringFromInt(model.rangeInput))
 								]))
 						]))
 				])),
@@ -5701,7 +5701,6 @@ var $author$project$Main$inputView = function (model) {
 						]))
 				])));
 };
-var $elm$core$Basics$ge = _Utils_ge;
 var $author$project$Main$intFromDifficulty = function (difficulty) {
 	switch (difficulty.$) {
 		case 'DifficultyUnknown':
@@ -5718,16 +5717,107 @@ var $author$project$Main$intFromDifficulty = function (difficulty) {
 			return 5;
 	}
 };
+var $author$project$Main$stringFromDifficulty = function (difficulty) {
+	return $author$project$Main$difficultyStringFromInt(
+		$author$project$Main$intFromDifficulty(difficulty));
+};
+var $author$project$Main$createDifficultySpanEl = function (difficulty) {
+	switch (difficulty.$) {
+		case 'DifficultyUnknown':
+			return A2(
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('unknown match-difficulty-text')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Main$stringFromDifficulty(difficulty))
+					]));
+		case 'Easy':
+			return A2(
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('easy match-difficulty-text')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Main$stringFromDifficulty(difficulty))
+					]));
+		case 'Doable':
+			return A2(
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('doable match-difficulty-text')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Main$stringFromDifficulty(difficulty))
+					]));
+		case 'Difficult':
+			return A2(
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('difficult match-difficulty-text')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Main$stringFromDifficulty(difficulty))
+					]));
+		case 'VeryDifficult':
+			return A2(
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('very-difficult match-difficulty-text')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Main$stringFromDifficulty(difficulty))
+					]));
+		default:
+			return A2(
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('impossible match-difficulty-text')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Main$stringFromDifficulty(difficulty))
+					]));
+	}
+};
+var $elm$core$Basics$ge = _Utils_ge;
 var $author$project$Main$createPredictionResultText = F2(
 	function (expectedDifficulty, actualDifficulty) {
 		return (_Utils_cmp(
 			$author$project$Main$intFromDifficulty(expectedDifficulty),
 			$author$project$Main$intFromDifficulty(actualDifficulty)) > -1) ? 'RIGHT' : 'WRONG';
 	});
-var $author$project$Main$difficultyTextFromDifficulty = function (difficulty) {
-	return $author$project$Main$difficultyTextFromInt(
-		$author$project$Main$intFromDifficulty(difficulty));
-};
+var $author$project$Main$createPredictionResultSpanEl = F2(
+	function (expectedDifficulty, actualDifficulty) {
+		var result = A2($author$project$Main$createPredictionResultText, expectedDifficulty, actualDifficulty);
+		return A2(
+			$elm$html$Html$span,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class(result)
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text(result)
+				]));
+	});
 var $author$project$Main$createMatchTexts = function (pred) {
 	var _v0 = pred.difficulty;
 	var expectedDifficulty = _v0.a;
@@ -5740,15 +5830,24 @@ var $author$project$Main$createMatchTexts = function (pred) {
 			]),
 		_List_fromArray(
 			[
-				$elm$html$Html$text(
-				$author$project$Main$difficultyTextFromDifficulty(expectedDifficulty)),
-				$elm$html$Html$text(' VS '),
-				$elm$html$Html$text(
-				$author$project$Main$difficultyTextFromDifficulty(actualDifficulty)),
-				$elm$html$Html$text(' = '),
+				$author$project$Main$createDifficultySpanEl(expectedDifficulty),
+				A2(
+				$elm$html$Html$span,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('VS')
+					])),
+				$author$project$Main$createDifficultySpanEl(actualDifficulty),
+				A2(
+				$elm$html$Html$span,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(' = ')
+					])),
 				$elm$html$Html$text('I was '),
-				$elm$html$Html$text(
-				A2($author$project$Main$createPredictionResultText, actualDifficulty, expectedDifficulty))
+				A2($author$project$Main$createPredictionResultSpanEl, actualDifficulty, expectedDifficulty)
 			]));
 };
 var $author$project$Main$createListContent = function (pred) {
@@ -5765,7 +5864,7 @@ var $author$project$Main$createListContent = function (pred) {
 					$elm$html$Html$text(pred.name)
 				])),
 			A2(
-			$elm$html$Html$span,
+			$elm$html$Html$p,
 			_List_fromArray(
 				[
 					$elm$html$Html$Attributes$class('match-container')
