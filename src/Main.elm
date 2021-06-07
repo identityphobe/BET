@@ -248,6 +248,8 @@ type Msg
     | EmptyInput
     | LinkClicked Browser.UrlRequest
     | UrlChanged Url.Url
+    | OpenReportPage Int
+    | SavePredictions
 
 
 
@@ -262,7 +264,10 @@ update msg model =
             validateActionInput createModelAfterSubmission model
 
         SubmitReport input ->
-            ( updateModelAfterReport input model, Cmd.none )
+            update SavePredictions <| updateModelAfterReport input model
+
+        SavePredictions ->
+            ( model, savePredictions model.predictionList )
 
         EmptyInput ->
             ( model, Cmd.none )
@@ -289,6 +294,9 @@ update msg model =
             , Cmd.none
             )
 
+        OpenReportPage id ->
+            ( model, Nav.pushUrl model.key ("report?id=" ++ String.fromInt id) )
+
 
 createModelAfterSubmission : Model -> Model
 createModelAfterSubmission model =
@@ -312,7 +320,7 @@ updateModelAfterReport idx model =
             difficultyFromInt model.rangeInput
 
         updatedPredictionList =
-            Utils.findAndUpdate (\pred -> pred.id == idx) (\pred -> { pred | difficulty = ( Tuple.second pred.difficulty, reportedDifficulty ) }) model.predictionList
+            Utils.findAndUpdate (\pred -> pred.id == idx) (\pred -> { pred | difficulty = ( Tuple.first pred.difficulty, reportedDifficulty ) }) model.predictionList
     in
     { model | predictionList = updatedPredictionList }
 
@@ -379,7 +387,7 @@ view model =
             Just NewPrediction ->
                 [ div [ id "app-container" ]
                     [ li [] [ a [ href "/" ] [ text "/" ] ]
-                    , predictionListView model
+                    , inputView model
                     ]
                 ]
 
@@ -429,9 +437,16 @@ inputView model =
 reportView : Int -> Model -> Html Msg
 reportView idx model =
     let
+        activityName =
+            case Utils.find (\pred -> pred.id == idx) model.predictionList of
+                Just foundActivity ->
+                    foundActivity.name
+
+                Nothing ->
+                    "making sure the report page id"
+
         defaultInputContainer =
-            [ input [ id "action-input", placeholder "I think...", value model.formInput, onInput PredictionInput ] []
-            , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyStringFromInt model.rangeInput ] ] ]
+            [ p [] [ text "Previously, I thought ", span [ class "report-activity-name" ] [ text activityName ], text " was ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyStringFromInt model.rangeInput ] ] ]
             , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
             , button [ id "submitButton", onClick (SubmitReport idx) ] [ text "Report" ]
             ]
@@ -564,7 +579,7 @@ createList model =
 
 createListItem : Prediction -> Html Msg
 createListItem pred =
-    div [ id ("prediction-" ++ String.fromInt pred.id), class "prediction-container" ] (createListContent pred)
+    div [ id ("prediction-" ++ String.fromInt pred.id), class "prediction-container", onClick (OpenReportPage pred.id) ] (createListContent pred)
 
 
 createListContent : Prediction -> List (Html Msg)

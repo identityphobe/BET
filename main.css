@@ -183,3 +183,8 @@ input[type="range"] {
   margin: auto 4px;
   display: inline-block;
 }
+
+.report-activity-name {
+  font-weight: bold;
+  text-decoration: underline;
+}

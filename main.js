@@ -6112,6 +6112,7 @@ var $elm$core$Platform$Sub$none = $elm$core$Platform$Sub$batch(_List_Nil);
 var $author$project$Main$subscriptions = function (_v0) {
 	return $elm$core$Platform$Sub$none;
 };
+var $author$project$Main$SavePredictions = {$: 'SavePredictions'};
 var $author$project$Main$difficultyFromInt = function (num) {
 	switch (num) {
 		case 1:
@@ -6315,10 +6316,6 @@ var $elm$url$Url$toString = function (url) {
 					_Utils_ap(http, url.host)),
 				url.path)));
 };
-var $elm$core$Tuple$second = function (_v0) {
-	var y = _v0.b;
-	return y;
-};
 var $author$project$Main$updateModelAfterReport = F2(
 	function (idx, model) {
 		var reportedDifficulty = $author$project$Main$difficultyFromInt(model.rangeInput);
@@ -6331,7 +6328,7 @@ var $author$project$Main$updateModelAfterReport = F2(
 				return _Utils_update(
 					pred,
 					{
-						difficulty: _Utils_Tuple2(pred.difficulty.b, reportedDifficulty)
+						difficulty: _Utils_Tuple2(pred.difficulty.a, reportedDifficulty)
 					});
 			},
 			model.predictionList);
@@ -6388,9 +6385,14 @@ var $author$project$Main$update = F2(
 				return A2($author$project$Main$validateActionInput, $author$project$Main$createModelAfterSubmission, model);
 			case 'SubmitReport':
 				var input = msg.a;
+				return A2(
+					$author$project$Main$update,
+					$author$project$Main$SavePredictions,
+					A2($author$project$Main$updateModelAfterReport, input, model));
+			case 'SavePredictions':
 				return _Utils_Tuple2(
-					A2($author$project$Main$updateModelAfterReport, input, model),
-					$elm$core$Platform$Cmd$none);
+					model,
+					$author$project$Main$savePredictions(model.predictionList));
 			case 'EmptyInput':
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 'PredictionInput':
@@ -6435,7 +6437,7 @@ var $author$project$Main$update = F2(
 						model,
 						$elm$browser$Browser$Navigation$load(href));
 				}
-			default:
+			case 'UrlChanged':
 				var url = msg.a;
 				return _Utils_Tuple2(
 					_Utils_update(
@@ -6444,6 +6446,14 @@ var $author$project$Main$update = F2(
 							route: A2($elm$url$Url$Parser$parse, $author$project$Main$routeParser, url)
 						}),
 					$elm$core$Platform$Cmd$none);
+			default:
+				var id = msg.a;
+				return _Utils_Tuple2(
+					model,
+					A2(
+						$elm$browser$Browser$Navigation$pushUrl,
+						model.key,
+						'report?id=' + $elm$core$String$fromInt(id)));
 		}
 	});
 var $elm$html$Html$a = _VirtualDom_node('a');
@@ -6462,9 +6472,15 @@ var $elm$html$Html$Attributes$href = function (url) {
 		_VirtualDom_noJavaScriptUri(url));
 };
 var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
-var $elm$html$Html$li = _VirtualDom_node('li');
+var $author$project$Main$PredictionInput = function (a) {
+	return {$: 'PredictionInput', a: a};
+};
+var $author$project$Main$RangeInput = function (a) {
+	return {$: 'RangeInput', a: a};
+};
+var $author$project$Main$SubmitPrediction = {$: 'SubmitPrediction'};
+var $elm$html$Html$button = _VirtualDom_node('button');
 var $elm$html$Html$Attributes$class = $elm$html$Html$Attributes$stringProperty('className');
-var $elm$html$Html$span = _VirtualDom_node('span');
 var $author$project$Main$difficultyStringFromInt = function (difficulty) {
 	switch (difficulty) {
 		case 1:
@@ -6480,6 +6496,170 @@ var $author$project$Main$difficultyStringFromInt = function (difficulty) {
 		default:
 			return '???';
 	}
+};
+var $elm$html$Html$input = _VirtualDom_node('input');
+var $elm$html$Html$Attributes$max = $elm$html$Html$Attributes$stringProperty('max');
+var $elm$html$Html$Attributes$min = $elm$html$Html$Attributes$stringProperty('min');
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
+};
+var $elm$html$Html$Events$alwaysStop = function (x) {
+	return _Utils_Tuple2(x, true);
+};
+var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
+	return {$: 'MayStopPropagation', a: a};
+};
+var $elm$html$Html$Events$stopPropagationOn = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
+	});
+var $elm$json$Json$Decode$at = F2(
+	function (fields, decoder) {
+		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
+	});
+var $elm$html$Html$Events$targetValue = A2(
+	$elm$json$Json$Decode$at,
+	_List_fromArray(
+		['target', 'value']),
+	$elm$json$Json$Decode$string);
+var $elm$html$Html$Events$onInput = function (tagger) {
+	return A2(
+		$elm$html$Html$Events$stopPropagationOn,
+		'input',
+		A2(
+			$elm$json$Json$Decode$map,
+			$elm$html$Html$Events$alwaysStop,
+			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
+};
+var $elm$html$Html$p = _VirtualDom_node('p');
+var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
+var $author$project$Main$setDifficultyClass = function (difficulty) {
+	switch (difficulty) {
+		case 1:
+			return 'easy';
+		case 2:
+			return 'doable';
+		case 3:
+			return 'difficult';
+		case 4:
+			return 'very-difficult';
+		case 5:
+			return 'impossible';
+		default:
+			return 'unknown';
+	}
+};
+var $elm$html$Html$span = _VirtualDom_node('span');
+var $elm$html$Html$strong = _VirtualDom_node('strong');
+var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
+var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
+var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
+var $author$project$Main$inputView = function (model) {
+	var defaultInputContainer = _List_fromArray(
+		[
+			A2(
+			$elm$html$Html$input,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$id('action-input'),
+					$elm$html$Html$Attributes$placeholder('I think...'),
+					$elm$html$Html$Attributes$value(model.formInput),
+					$elm$html$Html$Events$onInput($author$project$Main$PredictionInput)
+				]),
+			_List_Nil),
+			A2(
+			$elm$html$Html$p,
+			_List_Nil,
+			_List_fromArray(
+				[
+					$elm$html$Html$text('...is '),
+					A2(
+					$elm$html$Html$span,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class(
+							$author$project$Main$setDifficultyClass(model.rangeInput))
+						]),
+					_List_fromArray(
+						[
+							A2(
+							$elm$html$Html$strong,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text(
+									$author$project$Main$difficultyStringFromInt(model.rangeInput))
+								]))
+						]))
+				])),
+			A2(
+			$elm$html$Html$input,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$type_('range'),
+					$elm$html$Html$Attributes$min('1'),
+					$elm$html$Html$Attributes$max('5'),
+					$elm$html$Html$Attributes$value(
+					$elm$core$String$fromInt(model.rangeInput)),
+					$elm$html$Html$Events$onInput($author$project$Main$RangeInput)
+				]),
+			_List_Nil),
+			A2(
+			$elm$html$Html$button,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$id('submitButton'),
+					$elm$html$Html$Events$onClick($author$project$Main$SubmitPrediction)
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text('Test It')
+				]))
+		]);
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('input-container')
+			]),
+		$elm$core$String$isEmpty(model.inputError) ? defaultInputContainer : A2(
+			$elm$core$List$append,
+			defaultInputContainer,
+			_List_fromArray(
+				[
+					A2(
+					$elm$html$Html$p,
+					_List_fromArray(
+						[
+							$elm$html$Html$Attributes$class('input-error')
+						]),
+					_List_fromArray(
+						[
+							$elm$html$Html$text(model.inputError)
+						]))
+				])));
+};
+var $elm$html$Html$li = _VirtualDom_node('li');
+var $author$project$Main$OpenReportPage = function (a) {
+	return {$: 'OpenReportPage', a: a};
 };
 var $author$project$Main$intFromDifficulty = function (difficulty) {
 	switch (difficulty.$) {
@@ -6501,8 +6681,6 @@ var $author$project$Main$stringFromDifficulty = function (difficulty) {
 	return $author$project$Main$difficultyStringFromInt(
 		$author$project$Main$intFromDifficulty(difficulty));
 };
-var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
-var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
 var $author$project$Main$createDifficultySpanEl = function (difficulty) {
 	switch (difficulty.$) {
 		case 'DifficultyUnknown':
@@ -6600,7 +6778,6 @@ var $author$project$Main$createPredictionResultSpanEl = F2(
 					$elm$html$Html$text(result)
 				]));
 	});
-var $elm$html$Html$p = _VirtualDom_node('p');
 var $author$project$Main$createMatchTexts = function (pred) {
 	var _v0 = pred.difficulty;
 	var expectedDifficulty = _v0.a;
@@ -6665,7 +6842,9 @@ var $author$project$Main$createListItem = function (pred) {
 			[
 				$elm$html$Html$Attributes$id(
 				'prediction-' + $elm$core$String$fromInt(pred.id)),
-				$elm$html$Html$Attributes$class('prediction-container')
+				$elm$html$Html$Attributes$class('prediction-container'),
+				$elm$html$Html$Events$onClick(
+				$author$project$Main$OpenReportPage(pred.id))
 			]),
 		$author$project$Main$createListContent(pred));
 };
@@ -6681,16 +6860,9 @@ var $author$project$Main$predictionListView = function (model) {
 			]),
 		$author$project$Main$createList(model));
 };
-var $author$project$Main$PredictionInput = function (a) {
-	return {$: 'PredictionInput', a: a};
-};
-var $author$project$Main$RangeInput = function (a) {
-	return {$: 'RangeInput', a: a};
-};
 var $author$project$Main$SubmitReport = function (a) {
 	return {$: 'SubmitReport', a: a};
 };
-var $elm$html$Html$button = _VirtualDom_node('button');
 var $author$project$Utils$find = F2(
 	function (predicate, list) {
 		find:
@@ -6712,77 +6884,6 @@ var $author$project$Utils$find = F2(
 			}
 		}
 	});
-var $elm$html$Html$input = _VirtualDom_node('input');
-var $elm$html$Html$Attributes$max = $elm$html$Html$Attributes$stringProperty('max');
-var $elm$html$Html$Attributes$min = $elm$html$Html$Attributes$stringProperty('min');
-var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var $elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var $elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'click',
-		$elm$json$Json$Decode$succeed(msg));
-};
-var $elm$html$Html$Events$alwaysStop = function (x) {
-	return _Utils_Tuple2(x, true);
-};
-var $elm$virtual_dom$VirtualDom$MayStopPropagation = function (a) {
-	return {$: 'MayStopPropagation', a: a};
-};
-var $elm$html$Html$Events$stopPropagationOn = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$MayStopPropagation(decoder));
-	});
-var $elm$json$Json$Decode$at = F2(
-	function (fields, decoder) {
-		return A3($elm$core$List$foldr, $elm$json$Json$Decode$field, decoder, fields);
-	});
-var $elm$html$Html$Events$targetValue = A2(
-	$elm$json$Json$Decode$at,
-	_List_fromArray(
-		['target', 'value']),
-	$elm$json$Json$Decode$string);
-var $elm$html$Html$Events$onInput = function (tagger) {
-	return A2(
-		$elm$html$Html$Events$stopPropagationOn,
-		'input',
-		A2(
-			$elm$json$Json$Decode$map,
-			$elm$html$Html$Events$alwaysStop,
-			A2($elm$json$Json$Decode$map, tagger, $elm$html$Html$Events$targetValue)));
-};
-var $elm$html$Html$Attributes$placeholder = $elm$html$Html$Attributes$stringProperty('placeholder');
-var $author$project$Main$setDifficultyClass = function (difficulty) {
-	switch (difficulty) {
-		case 1:
-			return 'easy';
-		case 2:
-			return 'doable';
-		case 3:
-			return 'difficult';
-		case 4:
-			return 'very-difficult';
-		case 5:
-			return 'impossible';
-		default:
-			return 'unknown';
-	}
-};
-var $elm$html$Html$strong = _VirtualDom_node('strong');
-var $elm$html$Html$Attributes$type_ = $elm$html$Html$Attributes$stringProperty('type');
-var $elm$html$Html$Attributes$value = $elm$html$Html$Attributes$stringProperty('value');
 var $author$project$Main$reportView = F2(
 	function (idx, model) {
 		var id_exists = A2(
@@ -6791,24 +6892,39 @@ var $author$project$Main$reportView = F2(
 				return _Utils_eq(pred.id, idx);
 			},
 			model.predictionList);
+		var activityName = function () {
+			var _v1 = A2(
+				$author$project$Utils$find,
+				function (pred) {
+					return _Utils_eq(pred.id, idx);
+				},
+				model.predictionList);
+			if (_v1.$ === 'Just') {
+				var foundActivity = _v1.a;
+				return foundActivity.name;
+			} else {
+				return 'making sure the report page id';
+			}
+		}();
 		var defaultInputContainer = _List_fromArray(
 			[
-				A2(
-				$elm$html$Html$input,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$id('action-input'),
-						$elm$html$Html$Attributes$placeholder('I think...'),
-						$elm$html$Html$Attributes$value(model.formInput),
-						$elm$html$Html$Events$onInput($author$project$Main$PredictionInput)
-					]),
-				_List_Nil),
 				A2(
 				$elm$html$Html$p,
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('...is '),
+						$elm$html$Html$text('Previously, I thought '),
+						A2(
+						$elm$html$Html$span,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class('report-activity-name')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text(activityName)
+							])),
+						$elm$html$Html$text(' was '),
 						A2(
 						$elm$html$Html$span,
 						_List_fromArray(
@@ -6919,7 +7035,7 @@ var $author$project$Main$view = function (model) {
 													$elm$html$Html$text('/')
 												]))
 										])),
-									$author$project$Main$predictionListView(model)
+									$author$project$Main$inputView(model)
 								]))
 						]);
 				} else {
