@@ -373,8 +373,6 @@ view model =
                     ]
                 ]
 
-            -- [ p [] [ text <| "Report yo!" ++ String.fromInt idx ]
-            -- ]
             Nothing ->
                 [ div [ id "app-container" ]
                     [ li [] [ a [ href "/list" ] [ text "/list" ] ]
