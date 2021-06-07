@@ -6473,7 +6473,7 @@ var $author$project$Main$update = F2(
 							route: A2($elm$url$Url$Parser$parse, $author$project$Main$routeParser, url)
 						}),
 					$elm$core$Platform$Cmd$none);
-			default:
+			case 'OpenReportPage':
 				var id = msg.a;
 				return _Utils_Tuple2(
 					model,
@@ -6481,9 +6481,14 @@ var $author$project$Main$update = F2(
 						$elm$browser$Browser$Navigation$pushUrl,
 						model.key,
 						'report?id=' + $elm$core$String$fromInt(id)));
+			default:
+				return _Utils_Tuple2(
+					model,
+					A2($elm$browser$Browser$Navigation$pushUrl, model.key, '/'));
 		}
 	});
 var $elm$html$Html$a = _VirtualDom_node('a');
+var $author$project$Main$ClickHomeButton = {$: 'ClickHomeButton'};
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
@@ -6493,6 +6498,23 @@ var $elm$html$Html$Attributes$stringProperty = F2(
 			$elm$json$Json$Encode$string(string));
 	});
 var $elm$html$Html$Attributes$id = $elm$html$Html$Attributes$stringProperty('id');
+var $elm$virtual_dom$VirtualDom$Normal = function (a) {
+	return {$: 'Normal', a: a};
+};
+var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
+var $elm$html$Html$Events$on = F2(
+	function (event, decoder) {
+		return A2(
+			$elm$virtual_dom$VirtualDom$on,
+			event,
+			$elm$virtual_dom$VirtualDom$Normal(decoder));
+	});
+var $elm$html$Html$Events$onClick = function (msg) {
+	return A2(
+		$elm$html$Html$Events$on,
+		'click',
+		$elm$json$Json$Decode$succeed(msg));
+};
 var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
@@ -6508,11 +6530,13 @@ var $author$project$Main$appView = F2(
 					]),
 				_List_fromArray(
 					[
+						view_comp(model),
 						A2(
 						$elm$html$Html$div,
 						_List_fromArray(
 							[
-								$elm$html$Html$Attributes$id('nav-bar')
+								$elm$html$Html$Attributes$id('nav-bar'),
+								$elm$html$Html$Events$onClick($author$project$Main$ClickHomeButton)
 							]),
 						_List_fromArray(
 							[
@@ -6529,24 +6553,10 @@ var $author$project$Main$appView = F2(
 										_List_Nil,
 										_List_fromArray(
 											[
-												$elm$html$Html$text('Home')
-											]))
-									])),
-								A2(
-								$elm$html$Html$div,
-								_List_Nil,
-								_List_fromArray(
-									[
-										A2(
-										$elm$html$Html$p,
-										_List_Nil,
-										_List_fromArray(
-											[
-												$elm$html$Html$text('List')
+												$elm$html$Html$text('🏠')
 											]))
 									]))
-							])),
-						view_comp(model)
+							]))
 					]))
 			]);
 	});
@@ -6584,23 +6594,6 @@ var $author$project$Main$difficultyStringFromInt = function (difficulty) {
 var $elm$html$Html$input = _VirtualDom_node('input');
 var $elm$html$Html$Attributes$max = $elm$html$Html$Attributes$stringProperty('max');
 var $elm$html$Html$Attributes$min = $elm$html$Html$Attributes$stringProperty('min');
-var $elm$virtual_dom$VirtualDom$Normal = function (a) {
-	return {$: 'Normal', a: a};
-};
-var $elm$virtual_dom$VirtualDom$on = _VirtualDom_on;
-var $elm$html$Html$Events$on = F2(
-	function (event, decoder) {
-		return A2(
-			$elm$virtual_dom$VirtualDom$on,
-			event,
-			$elm$virtual_dom$VirtualDom$Normal(decoder));
-	});
-var $elm$html$Html$Events$onClick = function (msg) {
-	return A2(
-		$elm$html$Html$Events$on,
-		'click',
-		$elm$json$Json$Decode$succeed(msg));
-};
 var $elm$html$Html$Events$alwaysStop = function (x) {
 	return _Utils_Tuple2(x, true);
 };
@@ -6739,6 +6732,208 @@ var $author$project$Main$inputView = function (model) {
 				])));
 };
 var $elm$html$Html$li = _VirtualDom_node('li');
+var $author$project$Main$OpenReportPage = function (a) {
+	return {$: 'OpenReportPage', a: a};
+};
+var $author$project$Main$intFromDifficulty = function (difficulty) {
+	switch (difficulty.$) {
+		case 'DifficultyUnknown':
+			return 0;
+		case 'Easy':
+			return 1;
+		case 'Doable':
+			return 2;
+		case 'Difficult':
+			return 3;
+		case 'VeryDifficult':
+			return 4;
+		default:
+			return 5;
+	}
+};
+var $author$project$Main$stringFromDifficulty = function (difficulty) {
+	return $author$project$Main$difficultyStringFromInt(
+		$author$project$Main$intFromDifficulty(difficulty));
+};
+var $author$project$Main$createDifficultySpanEl = function (difficulty) {
+	switch (difficulty.$) {
+		case 'DifficultyUnknown':
+			return A2(
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('unknown match-difficulty-text')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Main$stringFromDifficulty(difficulty))
+					]));
+		case 'Easy':
+			return A2(
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('easy match-difficulty-text')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Main$stringFromDifficulty(difficulty))
+					]));
+		case 'Doable':
+			return A2(
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('doable match-difficulty-text')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Main$stringFromDifficulty(difficulty))
+					]));
+		case 'Difficult':
+			return A2(
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('difficult match-difficulty-text')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Main$stringFromDifficulty(difficulty))
+					]));
+		case 'VeryDifficult':
+			return A2(
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('very-difficult match-difficulty-text')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Main$stringFromDifficulty(difficulty))
+					]));
+		default:
+			return A2(
+				$elm$html$Html$span,
+				_List_fromArray(
+					[
+						$elm$html$Html$Attributes$class('impossible match-difficulty-text')
+					]),
+				_List_fromArray(
+					[
+						$elm$html$Html$text(
+						$author$project$Main$stringFromDifficulty(difficulty))
+					]));
+	}
+};
+var $elm$core$Basics$ge = _Utils_ge;
+var $author$project$Main$createPredictionResultText = F2(
+	function (expectedDifficulty, actualDifficulty) {
+		return (_Utils_cmp(
+			$author$project$Main$intFromDifficulty(expectedDifficulty),
+			$author$project$Main$intFromDifficulty(actualDifficulty)) > -1) ? 'RIGHT' : 'WRONG';
+	});
+var $author$project$Main$createPredictionResultSpanEl = F2(
+	function (expectedDifficulty, actualDifficulty) {
+		var result = A2($author$project$Main$createPredictionResultText, expectedDifficulty, actualDifficulty);
+		return A2(
+			$elm$html$Html$span,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class(result)
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text(result)
+				]));
+	});
+var $author$project$Main$createMatchTexts = function (pred) {
+	var _v0 = pred.difficulty;
+	var expectedDifficulty = _v0.a;
+	var actualDifficulty = _v0.b;
+	return A2(
+		$elm$html$Html$p,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$class('match-versus-text')
+			]),
+		_List_fromArray(
+			[
+				$author$project$Main$createDifficultySpanEl(expectedDifficulty),
+				A2(
+				$elm$html$Html$span,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('VS')
+					])),
+				$author$project$Main$createDifficultySpanEl(actualDifficulty),
+				A2(
+				$elm$html$Html$span,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text(' = ')
+					])),
+				$elm$html$Html$text('I was '),
+				A2($author$project$Main$createPredictionResultSpanEl, actualDifficulty, expectedDifficulty)
+			]));
+};
+var $author$project$Main$createListContent = function (pred) {
+	return _List_fromArray(
+		[
+			A2(
+			$elm$html$Html$p,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('prediction-name')
+				]),
+			_List_fromArray(
+				[
+					$elm$html$Html$text(pred.name)
+				])),
+			A2(
+			$elm$html$Html$p,
+			_List_fromArray(
+				[
+					$elm$html$Html$Attributes$class('match-container')
+				]),
+			_List_fromArray(
+				[
+					$author$project$Main$createMatchTexts(pred)
+				]))
+		]);
+};
+var $author$project$Main$createListItem = function (pred) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$id(
+				'prediction-' + $elm$core$String$fromInt(pred.id)),
+				$elm$html$Html$Attributes$class('prediction-container'),
+				$elm$html$Html$Events$onClick(
+				$author$project$Main$OpenReportPage(pred.id))
+			]),
+		$author$project$Main$createListContent(pred));
+};
+var $author$project$Main$createList = function (model) {
+	return A2($elm$core$List$map, $author$project$Main$createListItem, model.predictionList);
+};
+var $author$project$Main$predictionListView = function (model) {
+	return A2(
+		$elm$html$Html$div,
+		_List_fromArray(
+			[
+				$elm$html$Html$Attributes$id('prediction-list-container')
+			]),
+		$author$project$Main$createList(model));
+};
 var $author$project$Main$SubmitReport = function (a) {
 	return {$: 'SubmitReport', a: a};
 };
@@ -6921,19 +7116,10 @@ var $author$project$Main$view = function (model) {
 					var idx = _v0.a.a;
 					if (idx.$ === 'Just') {
 						var num = idx.a;
-						return _List_fromArray(
-							[
-								A2(
-								$elm$html$Html$div,
-								_List_fromArray(
-									[
-										$elm$html$Html$Attributes$id('app-container')
-									]),
-								_List_fromArray(
-									[
-										A2($author$project$Main$reportView, num, model)
-									]))
-							]);
+						return A2(
+							$author$project$Main$appView,
+							$author$project$Main$reportView(num),
+							model);
 					} else {
 						return _List_fromArray(
 							[
@@ -6951,7 +7137,7 @@ var $author$project$Main$view = function (model) {
 					}
 				}
 			} else {
-				return A2($author$project$Main$appView, $author$project$Main$inputView, model);
+				return A2($author$project$Main$appView, $author$project$Main$predictionListView, model);
 			}
 		}(),
 		title: 'BET'

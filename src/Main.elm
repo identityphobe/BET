@@ -252,6 +252,7 @@ type Msg
     | UrlChanged Url.Url
     | OpenReportPage Int
     | SavePredictions
+    | ClickHomeButton
 
 
 
@@ -298,6 +299,9 @@ update msg model =
 
         OpenReportPage id ->
             ( model, Nav.pushUrl model.key ("report?id=" ++ String.fromInt id) )
+
+        ClickHomeButton ->
+            ( model, Nav.pushUrl model.key "/" )
 
 
 createModelAfterSubmission : Model -> Model
@@ -409,35 +413,29 @@ view model =
             Just (ReportPrediction idx) ->
                 case idx of
                     Just num ->
-                        [ div [ id "app-container" ]
-                            [ reportView
-                                num
-                                model
-                            ]
-                        ]
+                        appView (reportView num) model
 
+                    -- [ div [ id "app-container" ]
+                    --     [ reportView
+                    --         num
+                    --         model
+                    --     ]
+                    -- ]
                     Nothing ->
                         [ div [ id "app-container" ]
                             [ text "Something's wrong with your report url. Make sure the id is there and a proper integer." ]
                         ]
 
             Nothing ->
-                appView inputView model
-
-    -- [ div [ id "app-container" ]
-    --     [
-    --     , li [] [ a [ href "/list" ] [ text "/list" ] ]
-    --     , predictionListView model
-    --     ]
-    -- ]
+                appView predictionListView model
     }
 
 
 appView : (Model -> Html Msg) -> Model -> List (Html Msg)
 appView view_comp model =
     [ div [ id "app-container" ]
-        [ div [ id "nav-bar" ] [ div [ id "current" ] [ p [] [ text "Home" ] ], div [] [ p [] [ text "List" ] ] ]
-        , view_comp model
+        [ view_comp model
+        , div [ id "nav-bar", onClick ClickHomeButton ] [ div [ id "current" ] [ p [] [ text "🏠" ] ] ]
         ]
     ]
 
