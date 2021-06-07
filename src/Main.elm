@@ -14,6 +14,7 @@ import Platform exposing (Router)
 import Ports
 import String exposing (isEmpty)
 import Task
+import Tuple
 import Url
 import Url.Parser as UrlParser exposing ((</>), (<?>), Parser)
 import Url.Parser.Query as Query
@@ -240,6 +241,7 @@ decodeStoredPredictions predictionsJson =
 
 type Msg
     = SubmitPrediction
+    | SubmitReport Int
     | PredictionInput String
     | SetState Int PredictionState
     | RangeInput String
@@ -257,7 +259,10 @@ update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         SubmitPrediction ->
-            validateActionInput model
+            validateActionInput createModelAfterSubmission model
+
+        SubmitReport input ->
+            ( updateModelAfterReport input model, Cmd.none )
 
         EmptyInput ->
             ( model, Cmd.none )
@@ -289,7 +294,7 @@ createModelAfterSubmission : Model -> Model
 createModelAfterSubmission model =
     let
         expectedDifficulty =
-            convertNumToDifficulty model.rangeInput
+            difficultyFromInt model.rangeInput
     in
     { model
         | predictionList = model.predictionList ++ [ { id = model.predictionsCreated, name = model.formInput, state = Unknown, difficulty = ( expectedDifficulty, DifficultyUnknown ) } ]
@@ -300,15 +305,27 @@ createModelAfterSubmission model =
     }
 
 
-validateActionInput : Model -> ( Model, Cmd Msg )
-validateActionInput model =
+updateModelAfterReport : Int -> Model -> Model
+updateModelAfterReport idx model =
+    let
+        reportedDifficulty =
+            difficultyFromInt model.rangeInput
+
+        updatedPredictionList =
+            Utils.findAndUpdate (\pred -> pred.id == idx) (\pred -> { pred | difficulty = ( Tuple.second pred.difficulty, reportedDifficulty ) }) model.predictionList
+    in
+    { model | predictionList = updatedPredictionList }
+
+
+validateActionInput : (Model -> Model) -> Model -> ( Model, Cmd Msg )
+validateActionInput func model =
     if isEmpty model.formInput then
         -- TODO: handle error if Dom.focus can't find the id of the element to focus
         ( { model | inputError = "Are you afraid of nothing?" }, Task.attempt (\_ -> EmptyInput) (Dom.focus "action-input") )
 
     else
-        ( createModelAfterSubmission model
-        , savePredictions (createModelAfterSubmission model).predictionList
+        ( func model
+        , savePredictions (func model).predictionList
         )
 
 
@@ -319,8 +336,8 @@ setState idx state model =
     }
 
 
-convertNumToDifficulty : Int -> Difficulty
-convertNumToDifficulty num =
+difficultyFromInt : Int -> Difficulty
+difficultyFromInt num =
     case num of
         1 ->
             Easy
@@ -367,11 +384,19 @@ view model =
                 ]
 
             Just (ReportPrediction idx) ->
-                [ div [ id "app-container" ]
-                    [ inputView
-                        model
-                    ]
-                ]
+                case idx of
+                    Just num ->
+                        [ div [ id "app-container" ]
+                            [ reportView
+                                num
+                                model
+                            ]
+                        ]
+
+                    Nothing ->
+                        [ div [ id "app-container" ]
+                            [ text "Something's wrong with your report url. Make sure the id is there and a proper integer." ]
+                        ]
 
             Nothing ->
                 [ div [ id "app-container" ]
@@ -399,6 +424,33 @@ inputView model =
          else
             List.append defaultInputContainer <| [ p [ class "input-error" ] [ text model.inputError ] ]
         )
+
+
+reportView : Int -> Model -> Html Msg
+reportView idx model =
+    let
+        defaultInputContainer =
+            [ input [ id "action-input", placeholder "I think...", value model.formInput, onInput PredictionInput ] []
+            , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyStringFromInt model.rangeInput ] ] ]
+            , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
+            , button [ id "submitButton", onClick (SubmitReport idx) ] [ text "Report" ]
+            ]
+
+        id_exists =
+            Utils.find (\pred -> pred.id == idx) model.predictionList
+    in
+    case id_exists of
+        Just _ ->
+            div [ class "input-container" ]
+                (if isEmpty model.inputError then
+                    defaultInputContainer
+
+                 else
+                    List.append defaultInputContainer <| [ p [ class "input-error" ] [ text model.inputError ] ]
+                )
+
+        Nothing ->
+            p [] [ text "That's the wrong id, o' person of importance." ]
 
 
 difficultyStringFromInt : Int -> String
