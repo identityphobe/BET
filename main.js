@@ -6129,6 +6129,33 @@ var $author$project$Main$difficultyFromInt = function (num) {
 			return $author$project$Main$DifficultyUnknown;
 	}
 };
+var $elm$core$List$head = function (list) {
+	if (list.b) {
+		var x = list.a;
+		var xs = list.b;
+		return $elm$core$Maybe$Just(x);
+	} else {
+		return $elm$core$Maybe$Nothing;
+	}
+};
+var $elm$core$List$sortBy = _List_sortBy;
+var $elm$core$List$sort = function (xs) {
+	return A2($elm$core$List$sortBy, $elm$core$Basics$identity, xs);
+};
+var $author$project$Main$getMaxId = function (list) {
+	return A2(
+		$elm$core$Maybe$withDefault,
+		0,
+		$elm$core$List$head(
+			$elm$core$List$reverse(
+				$elm$core$List$sort(
+					A2(
+						$elm$core$List$map,
+						function (pred) {
+							return pred.id;
+						},
+						list)))));
+};
 var $author$project$Main$createModelAfterSubmission = function (model) {
 	var expectedDifficulty = $author$project$Main$difficultyFromInt(model.rangeInput);
 	return _Utils_update(
@@ -6142,12 +6169,12 @@ var $author$project$Main$createModelAfterSubmission = function (model) {
 					[
 						{
 						difficulty: _Utils_Tuple2(expectedDifficulty, $author$project$Main$DifficultyUnknown),
-						id: model.predictionsCreated,
+						id: $author$project$Main$getMaxId(model.predictionList) + 1,
 						name: model.formInput,
 						state: $author$project$Main$Unknown
 					}
 					])),
-			predictionsCreated: model.predictionsCreated + 1,
+			predictionsCreated: $author$project$Main$getMaxId(model.predictionList) + 1,
 			rangeInput: 3
 		});
 };

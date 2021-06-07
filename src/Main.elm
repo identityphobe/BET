@@ -5,11 +5,13 @@ module Main exposing (..)
 import Browser
 import Browser.Dom as Dom
 import Browser.Navigation as Nav
+import Dict
 import Html exposing (..)
 import Html.Attributes as Attributes exposing (class, href, id, placeholder, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Json.Decode as Decode exposing (Decoder, Error(..), decodeString, field, index, int, map4, string)
 import Json.Encode as Encode
+import List
 import Platform exposing (Router)
 import Ports
 import String exposing (isEmpty)
@@ -305,12 +307,31 @@ createModelAfterSubmission model =
             difficultyFromInt model.rangeInput
     in
     { model
-        | predictionList = model.predictionList ++ [ { id = model.predictionsCreated, name = model.formInput, state = Unknown, difficulty = ( expectedDifficulty, DifficultyUnknown ) } ]
+        | predictionList = model.predictionList ++ [ { id = getMaxId model.predictionList + 1, name = model.formInput, state = Unknown, difficulty = ( expectedDifficulty, DifficultyUnknown ) } ]
         , formInput = ""
         , rangeInput = 3
         , inputError = ""
-        , predictionsCreated = model.predictionsCreated + 1
+
+        -- consider storing this as JSON or remove it altogether
+        , predictionsCreated = getMaxId model.predictionList + 1
     }
+
+
+getMaxId : List Prediction -> Int
+getMaxId list =
+    Maybe.withDefault
+        0
+    <|
+        List.head <|
+            List.reverse <|
+                List.sort <|
+                    List.map (\pred -> pred.id) list
+
+
+
+--     |> List.sort
+--     |> List.reverse
+--     |> Maybe.withDefault 0 List.head
 
 
 updateModelAfterReport : Int -> Model -> Model
