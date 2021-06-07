@@ -328,12 +328,6 @@ getMaxId list =
                     List.map (\pred -> pred.id) list
 
 
-
---     |> List.sort
---     |> List.reverse
---     |> Maybe.withDefault 0 List.head
-
-
 updateModelAfterReport : Int -> Model -> Model
 updateModelAfterReport idx model =
     let
@@ -428,12 +422,24 @@ view model =
                         ]
 
             Nothing ->
-                [ div [ id "app-container" ]
-                    [ li [] [ a [ href "/list" ] [ text "/list" ] ]
-                    , predictionListView model
-                    ]
-                ]
+                appView inputView model
+
+    -- [ div [ id "app-container" ]
+    --     [
+    --     , li [] [ a [ href "/list" ] [ text "/list" ] ]
+    --     , predictionListView model
+    --     ]
+    -- ]
     }
+
+
+appView : (Model -> Html Msg) -> Model -> List (Html Msg)
+appView view_comp model =
+    [ div [ id "app-container" ]
+        [ div [ id "nav-bar" ] [ div [ id "current" ] [ p [] [ text "Home" ] ], div [] [ p [] [ text "List" ] ] ]
+        , view_comp model
+        ]
+    ]
 
 
 inputView : Model -> Html Msg
