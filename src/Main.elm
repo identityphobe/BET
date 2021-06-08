@@ -462,24 +462,27 @@ inputView model =
 reportView : Int -> Model -> Html Msg
 reportView idx model =
     let
-        activityName =
+        ( activityName, activityDifficulty ) =
             case Utils.find (\pred -> pred.id == idx) model.predictionList of
                 Just foundActivity ->
-                    foundActivity.name
+                    ( foundActivity.name, foundActivity.difficulty )
 
                 Nothing ->
-                    "making sure the report page id"
+                    ( "making sure the report page id", ( DifficultyUnknown, DifficultyUnknown ) )
+
+        expectedDifficultyString =
+            stringFromDifficulty <| Tuple.first activityDifficulty
+
+        prediction =
+            Utils.find (\pred -> pred.id == idx) model.predictionList
 
         defaultInputContainer =
-            [ p [] [ text "Previously, I thought ", span [ class "report-activity-name" ] [ text activityName ], text " was ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyStringFromInt model.rangeInput ] ] ]
+            [ p [] [ text "Previously, I thought ", span [ class "report-activity-name" ] [ text activityName ], text " was ", span [ class expectedDifficultyString ] [ strong [] [ text expectedDifficultyString ] ] ]
             , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
             , button [ id "submitButton", onClick (SubmitReport idx) ] [ text "Report" ]
             ]
-
-        id_exists =
-            Utils.find (\pred -> pred.id == idx) model.predictionList
     in
-    case id_exists of
+    case prediction of
         Just _ ->
             div [ class "input-container" ]
                 (if isEmpty model.inputError then

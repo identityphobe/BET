@@ -6960,13 +6960,13 @@ var $author$project$Utils$find = F2(
 	});
 var $author$project$Main$reportView = F2(
 	function (idx, model) {
-		var id_exists = A2(
+		var prediction = A2(
 			$author$project$Utils$find,
 			function (pred) {
 				return _Utils_eq(pred.id, idx);
 			},
 			model.predictionList);
-		var activityName = function () {
+		var _v0 = function () {
 			var _v1 = A2(
 				$author$project$Utils$find,
 				function (pred) {
@@ -6975,11 +6975,16 @@ var $author$project$Main$reportView = F2(
 				model.predictionList);
 			if (_v1.$ === 'Just') {
 				var foundActivity = _v1.a;
-				return foundActivity.name;
+				return _Utils_Tuple2(foundActivity.name, foundActivity.difficulty);
 			} else {
-				return 'making sure the report page id';
+				return _Utils_Tuple2(
+					'making sure the report page id',
+					_Utils_Tuple2($author$project$Main$DifficultyUnknown, $author$project$Main$DifficultyUnknown));
 			}
 		}();
+		var activityName = _v0.a;
+		var activityDifficulty = _v0.b;
+		var expectedDifficultyString = $author$project$Main$stringFromDifficulty(activityDifficulty.a);
 		var defaultInputContainer = _List_fromArray(
 			[
 				A2(
@@ -7003,8 +7008,7 @@ var $author$project$Main$reportView = F2(
 						$elm$html$Html$span,
 						_List_fromArray(
 							[
-								$elm$html$Html$Attributes$class(
-								$author$project$Main$setDifficultyClass(model.rangeInput))
+								$elm$html$Html$Attributes$class(expectedDifficultyString)
 							]),
 						_List_fromArray(
 							[
@@ -7013,8 +7017,7 @@ var $author$project$Main$reportView = F2(
 								_List_Nil,
 								_List_fromArray(
 									[
-										$elm$html$Html$text(
-										$author$project$Main$difficultyStringFromInt(model.rangeInput))
+										$elm$html$Html$text(expectedDifficultyString)
 									]))
 							]))
 					])),
@@ -7043,7 +7046,7 @@ var $author$project$Main$reportView = F2(
 						$elm$html$Html$text('Report')
 					]))
 			]);
-		if (id_exists.$ === 'Just') {
+		if (prediction.$ === 'Just') {
 			return A2(
 				$elm$html$Html$div,
 				_List_fromArray(
