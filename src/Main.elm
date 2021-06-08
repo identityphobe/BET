@@ -474,33 +474,55 @@ reportView idx model =
         expectedDifficultyString =
             stringFromDifficulty <| Tuple.first activityDifficulty
 
+        actualDifficulty =
+            Tuple.second activityDifficulty
+
+        -- case Tuple.second activityDifficulty of
+        --     DifficultyUnknown ->
+        --         difficultyFromInt model.rangeInput
+        --     _ ->
+        --         Tuple.second activityDifficulty
         prediction =
             Utils.find (\pred -> pred.id == idx) model.predictionList
 
         matchText =
             case prediction of
                 Just pred ->
-                    createPredictionResultSpanEl (Tuple.first pred.difficulty) (Tuple.second pred.difficulty)
+                    case Tuple.second activityDifficulty of
+                        DifficultyUnknown ->
+                            createPredictionResultSpanEl (Tuple.first pred.difficulty) (difficultyFromInt model.rangeInput)
+
+                        _ ->
+                            createPredictionResultSpanEl (Tuple.first pred.difficulty) (Tuple.second pred.difficulty)
 
                 Nothing ->
                     p [] [ text "No match up, sonny" ]
 
-        defaultInputContainer =
-            [ p [] [ text "I thought ", span [ class "report-activity-name" ] [ text activityName ], text " would be ", span [ class expectedDifficultyString ] [ strong [] [ text expectedDifficultyString ] ], text "." ]
-            , p [] [ text "But, it is actually ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyStringFromInt model.rangeInput ] ] ]
-            , p [] [ text "So, I was ", matchText ]
-            , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
-            , button [ id "submitButton", onClick (SubmitReport idx) ] [ text "Report" ]
-            ]
+        -- defaultInputContainer =
+        --     [ p [] [ text "I thought ", span [ class "report-activity-name" ] [ text activityName ], text " would be ", span [ class expectedDifficultyString ] [ strong [] [ text expectedDifficultyString ] ], text "." ]
+        --     , p [] [ text "But, it is actually ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyStringFromInt model.rangeInput ] ] ]
+        --     , p [] [ text "So, I was ", matchText ]
+        --     , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
+        --     , button [ id "submitButton", onClick (SubmitReport idx) ] [ text "Report" ]
+        --     ]
     in
     case prediction of
         Just _ ->
+            -- TODO: Refactor this
             div [ class "input-container" ]
-                (if isEmpty model.inputError then
-                    defaultInputContainer
+                (if actualDifficulty /= DifficultyUnknown then
+                    [ p [] [ text "I thought ", span [ class "report-activity-name" ] [ text activityName ], text " would be ", span [ class expectedDifficultyString ] [ strong [] [ text expectedDifficultyString ] ], text "." ]
+                    , p [] [ text "But, it is actually ", span [ class <| stringFromDifficulty actualDifficulty ] [ strong [] [ text <| stringFromDifficulty actualDifficulty ] ] ]
+                    , p [] [ text "So, I was ", matchText ]
+                    ]
 
                  else
-                    List.append defaultInputContainer <| [ p [ class "input-error" ] [ text model.inputError ] ]
+                    [ p [] [ text "I thought ", span [ class "report-activity-name" ] [ text activityName ], text " would be ", span [ class expectedDifficultyString ] [ strong [] [ text expectedDifficultyString ] ], text "." ]
+                    , p [] [ text "But, it is actually ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyStringFromInt model.rangeInput ] ] ]
+                    , p [] [ text "So, I was ", matchText ]
+                    , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
+                    , button [ id "submitButton", onClick (SubmitReport idx) ] [ text "Report" ]
+                    ]
                 )
 
         Nothing ->
@@ -590,7 +612,7 @@ setDifficultyClass difficulty =
 
 createPredictionResultText : Difficulty -> Difficulty -> String
 createPredictionResultText expectedDifficulty actualDifficulty =
-    if intFromDifficulty expectedDifficulty >= intFromDifficulty actualDifficulty then
+    if intFromDifficulty actualDifficulty >= intFromDifficulty expectedDifficulty then
         "RIGHT"
 
     else
@@ -632,7 +654,7 @@ createMatchTexts pred =
         ( expectedDifficulty, actualDifficulty ) =
             pred.difficulty
     in
-    p [ class "match-versus-text" ] [ createDifficultySpanEl expectedDifficulty, span [] [ text "VS" ], createDifficultySpanEl actualDifficulty, span [] [ text " = " ], text "I was ", createPredictionResultSpanEl actualDifficulty expectedDifficulty ]
+    p [ class "match-versus-text" ] [ createDifficultySpanEl expectedDifficulty, span [] [ text "VS" ], createDifficultySpanEl actualDifficulty, span [] [ text " = " ], text "I was ", createPredictionResultSpanEl expectedDifficulty actualDifficulty ]
 
 
 createDifficultySpanEl : Difficulty -> Html Msg

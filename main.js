@@ -6835,8 +6835,8 @@ var $elm$core$Basics$ge = _Utils_ge;
 var $author$project$Main$createPredictionResultText = F2(
 	function (expectedDifficulty, actualDifficulty) {
 		return (_Utils_cmp(
-			$author$project$Main$intFromDifficulty(expectedDifficulty),
-			$author$project$Main$intFromDifficulty(actualDifficulty)) > -1) ? 'RIGHT' : 'WRONG';
+			$author$project$Main$intFromDifficulty(actualDifficulty),
+			$author$project$Main$intFromDifficulty(expectedDifficulty)) > -1) ? 'RIGHT' : 'WRONG';
 	});
 var $author$project$Main$createPredictionResultSpanEl = F2(
 	function (expectedDifficulty, actualDifficulty) {
@@ -6881,7 +6881,7 @@ var $author$project$Main$createMatchTexts = function (pred) {
 						$elm$html$Html$text(' = ')
 					])),
 				$elm$html$Html$text('I was '),
-				A2($author$project$Main$createPredictionResultSpanEl, actualDifficulty, expectedDifficulty)
+				A2($author$project$Main$createPredictionResultSpanEl, expectedDifficulty, actualDifficulty)
 			]));
 };
 var $author$project$Main$createListContent = function (pred) {
@@ -6958,6 +6958,7 @@ var $author$project$Utils$find = F2(
 			}
 		}
 	});
+var $elm$core$Basics$neq = _Utils_notEqual;
 var $elm$core$Tuple$second = function (_v0) {
 	var y = _v0.b;
 	return y;
@@ -6970,20 +6971,6 @@ var $author$project$Main$reportView = F2(
 				return _Utils_eq(pred.id, idx);
 			},
 			model.predictionList);
-		var matchText = function () {
-			if (prediction.$ === 'Just') {
-				var pred = prediction.a;
-				return A2($author$project$Main$createPredictionResultSpanEl, pred.difficulty.a, pred.difficulty.b);
-			} else {
-				return A2(
-					$elm$html$Html$p,
-					_List_Nil,
-					_List_fromArray(
-						[
-							$elm$html$Html$text('No match up, sonny')
-						]));
-			}
-		}();
 		var _v0 = function () {
 			var _v1 = A2(
 				$author$project$Utils$find,
@@ -7002,102 +6989,30 @@ var $author$project$Main$reportView = F2(
 		}();
 		var activityName = _v0.a;
 		var activityDifficulty = _v0.b;
+		var actualDifficulty = activityDifficulty.b;
 		var expectedDifficultyString = $author$project$Main$stringFromDifficulty(activityDifficulty.a);
-		var defaultInputContainer = _List_fromArray(
-			[
-				A2(
-				$elm$html$Html$p,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('I thought '),
-						A2(
-						$elm$html$Html$span,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class('report-activity-name')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text(activityName)
-							])),
-						$elm$html$Html$text(' would be '),
-						A2(
-						$elm$html$Html$span,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class(expectedDifficultyString)
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$strong,
-								_List_Nil,
-								_List_fromArray(
-									[
-										$elm$html$Html$text(expectedDifficultyString)
-									]))
-							])),
-						$elm$html$Html$text('.')
-					])),
-				A2(
-				$elm$html$Html$p,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('But, it is actually '),
-						A2(
-						$elm$html$Html$span,
-						_List_fromArray(
-							[
-								$elm$html$Html$Attributes$class(
-								$author$project$Main$setDifficultyClass(model.rangeInput))
-							]),
-						_List_fromArray(
-							[
-								A2(
-								$elm$html$Html$strong,
-								_List_Nil,
-								_List_fromArray(
-									[
-										$elm$html$Html$text(
-										$author$project$Main$difficultyStringFromInt(model.rangeInput))
-									]))
-							]))
-					])),
-				A2(
-				$elm$html$Html$p,
-				_List_Nil,
-				_List_fromArray(
-					[
-						$elm$html$Html$text('So, I was '),
-						matchText
-					])),
-				A2(
-				$elm$html$Html$input,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$type_('range'),
-						$elm$html$Html$Attributes$min('1'),
-						$elm$html$Html$Attributes$max('5'),
-						$elm$html$Html$Attributes$value(
-						$elm$core$String$fromInt(model.rangeInput)),
-						$elm$html$Html$Events$onInput($author$project$Main$RangeInput)
-					]),
-				_List_Nil),
-				A2(
-				$elm$html$Html$button,
-				_List_fromArray(
-					[
-						$elm$html$Html$Attributes$id('submitButton'),
-						$elm$html$Html$Events$onClick(
-						$author$project$Main$SubmitReport(idx))
-					]),
-				_List_fromArray(
-					[
-						$elm$html$Html$text('Report')
-					]))
-			]);
+		var matchText = function () {
+			if (prediction.$ === 'Just') {
+				var pred = prediction.a;
+				var _v4 = activityDifficulty.b;
+				if (_v4.$ === 'DifficultyUnknown') {
+					return A2(
+						$author$project$Main$createPredictionResultSpanEl,
+						pred.difficulty.a,
+						$author$project$Main$difficultyFromInt(model.rangeInput));
+				} else {
+					return A2($author$project$Main$createPredictionResultSpanEl, pred.difficulty.a, pred.difficulty.b);
+				}
+			} else {
+				return A2(
+					$elm$html$Html$p,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text('No match up, sonny')
+						]));
+			}
+		}();
 		if (prediction.$ === 'Just') {
 			return A2(
 				$elm$html$Html$div,
@@ -7105,22 +7020,171 @@ var $author$project$Main$reportView = F2(
 					[
 						$elm$html$Html$Attributes$class('input-container')
 					]),
-				$elm$core$String$isEmpty(model.inputError) ? defaultInputContainer : A2(
-					$elm$core$List$append,
-					defaultInputContainer,
-					_List_fromArray(
-						[
-							A2(
-							$elm$html$Html$p,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$class('input-error')
-								]),
-							_List_fromArray(
-								[
-									$elm$html$Html$text(model.inputError)
-								]))
-						])));
+				(!_Utils_eq(actualDifficulty, $author$project$Main$DifficultyUnknown)) ? _List_fromArray(
+					[
+						A2(
+						$elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('I thought '),
+								A2(
+								$elm$html$Html$span,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('report-activity-name')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text(activityName)
+									])),
+								$elm$html$Html$text(' would be '),
+								A2(
+								$elm$html$Html$span,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class(expectedDifficultyString)
+									]),
+								_List_fromArray(
+									[
+										A2(
+										$elm$html$Html$strong,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text(expectedDifficultyString)
+											]))
+									])),
+								$elm$html$Html$text('.')
+							])),
+						A2(
+						$elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('But, it is actually '),
+								A2(
+								$elm$html$Html$span,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class(
+										$author$project$Main$stringFromDifficulty(actualDifficulty))
+									]),
+								_List_fromArray(
+									[
+										A2(
+										$elm$html$Html$strong,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text(
+												$author$project$Main$stringFromDifficulty(actualDifficulty))
+											]))
+									]))
+							])),
+						A2(
+						$elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('So, I was '),
+								matchText
+							]))
+					]) : _List_fromArray(
+					[
+						A2(
+						$elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('I thought '),
+								A2(
+								$elm$html$Html$span,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class('report-activity-name')
+									]),
+								_List_fromArray(
+									[
+										$elm$html$Html$text(activityName)
+									])),
+								$elm$html$Html$text(' would be '),
+								A2(
+								$elm$html$Html$span,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class(expectedDifficultyString)
+									]),
+								_List_fromArray(
+									[
+										A2(
+										$elm$html$Html$strong,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text(expectedDifficultyString)
+											]))
+									])),
+								$elm$html$Html$text('.')
+							])),
+						A2(
+						$elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('But, it is actually '),
+								A2(
+								$elm$html$Html$span,
+								_List_fromArray(
+									[
+										$elm$html$Html$Attributes$class(
+										$author$project$Main$setDifficultyClass(model.rangeInput))
+									]),
+								_List_fromArray(
+									[
+										A2(
+										$elm$html$Html$strong,
+										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$text(
+												$author$project$Main$difficultyStringFromInt(model.rangeInput))
+											]))
+									]))
+							])),
+						A2(
+						$elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('So, I was '),
+								matchText
+							])),
+						A2(
+						$elm$html$Html$input,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$type_('range'),
+								$elm$html$Html$Attributes$min('1'),
+								$elm$html$Html$Attributes$max('5'),
+								$elm$html$Html$Attributes$value(
+								$elm$core$String$fromInt(model.rangeInput)),
+								$elm$html$Html$Events$onInput($author$project$Main$RangeInput)
+							]),
+						_List_Nil),
+						A2(
+						$elm$html$Html$button,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$id('submitButton'),
+								$elm$html$Html$Events$onClick(
+								$author$project$Main$SubmitReport(idx))
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('Report')
+							]))
+					]));
 		} else {
 			return A2(
 				$elm$html$Html$p,
