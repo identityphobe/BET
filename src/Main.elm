@@ -462,6 +462,7 @@ inputView model =
 reportView : Int -> Model -> Html Msg
 reportView idx model =
     let
+        -- TODO: Should I clean this?
         ( activityName, activityDifficulty ) =
             case Utils.find (\pred -> pred.id == idx) model.predictionList of
                 Just foundActivity ->
@@ -476,8 +477,18 @@ reportView idx model =
         prediction =
             Utils.find (\pred -> pred.id == idx) model.predictionList
 
+        matchText =
+            case prediction of
+                Just pred ->
+                    createPredictionResultSpanEl (Tuple.first pred.difficulty) (Tuple.second pred.difficulty)
+
+                Nothing ->
+                    p [] [ text "No match up, sonny" ]
+
         defaultInputContainer =
-            [ p [] [ text "Previously, I thought ", span [ class "report-activity-name" ] [ text activityName ], text " was ", span [ class expectedDifficultyString ] [ strong [] [ text expectedDifficultyString ] ] ]
+            [ p [] [ text "I thought ", span [ class "report-activity-name" ] [ text activityName ], text " would be ", span [ class expectedDifficultyString ] [ strong [] [ text expectedDifficultyString ] ], text "." ]
+            , p [] [ text "But, it is actually ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyStringFromInt model.rangeInput ] ] ]
+            , p [] [ text "So, I was ", matchText ]
             , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
             , button [ id "submitButton", onClick (SubmitReport idx) ] [ text "Report" ]
             ]

@@ -6958,6 +6958,10 @@ var $author$project$Utils$find = F2(
 			}
 		}
 	});
+var $elm$core$Tuple$second = function (_v0) {
+	var y = _v0.b;
+	return y;
+};
 var $author$project$Main$reportView = F2(
 	function (idx, model) {
 		var prediction = A2(
@@ -6966,6 +6970,20 @@ var $author$project$Main$reportView = F2(
 				return _Utils_eq(pred.id, idx);
 			},
 			model.predictionList);
+		var matchText = function () {
+			if (prediction.$ === 'Just') {
+				var pred = prediction.a;
+				return A2($author$project$Main$createPredictionResultSpanEl, pred.difficulty.a, pred.difficulty.b);
+			} else {
+				return A2(
+					$elm$html$Html$p,
+					_List_Nil,
+					_List_fromArray(
+						[
+							$elm$html$Html$text('No match up, sonny')
+						]));
+			}
+		}();
 		var _v0 = function () {
 			var _v1 = A2(
 				$author$project$Utils$find,
@@ -6992,7 +7010,7 @@ var $author$project$Main$reportView = F2(
 				_List_Nil,
 				_List_fromArray(
 					[
-						$elm$html$Html$text('Previously, I thought '),
+						$elm$html$Html$text('I thought '),
 						A2(
 						$elm$html$Html$span,
 						_List_fromArray(
@@ -7003,7 +7021,7 @@ var $author$project$Main$reportView = F2(
 							[
 								$elm$html$Html$text(activityName)
 							])),
-						$elm$html$Html$text(' was '),
+						$elm$html$Html$text(' would be '),
 						A2(
 						$elm$html$Html$span,
 						_List_fromArray(
@@ -7019,7 +7037,41 @@ var $author$project$Main$reportView = F2(
 									[
 										$elm$html$Html$text(expectedDifficultyString)
 									]))
+							])),
+						$elm$html$Html$text('.')
+					])),
+				A2(
+				$elm$html$Html$p,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('But, it is actually '),
+						A2(
+						$elm$html$Html$span,
+						_List_fromArray(
+							[
+								$elm$html$Html$Attributes$class(
+								$author$project$Main$setDifficultyClass(model.rangeInput))
+							]),
+						_List_fromArray(
+							[
+								A2(
+								$elm$html$Html$strong,
+								_List_Nil,
+								_List_fromArray(
+									[
+										$elm$html$Html$text(
+										$author$project$Main$difficultyStringFromInt(model.rangeInput))
+									]))
 							]))
+					])),
+				A2(
+				$elm$html$Html$p,
+				_List_Nil,
+				_List_fromArray(
+					[
+						$elm$html$Html$text('So, I was '),
+						matchText
 					])),
 				A2(
 				$elm$html$Html$input,
