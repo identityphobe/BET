@@ -6522,8 +6522,80 @@ var $elm$html$Html$Events$onClick = function (msg) {
 var $elm$html$Html$p = _VirtualDom_node('p');
 var $elm$virtual_dom$VirtualDom$text = _VirtualDom_text;
 var $elm$html$Html$text = $elm$virtual_dom$VirtualDom$text;
+var $elm$html$Html$Attributes$title = $elm$html$Html$Attributes$stringProperty('title');
 var $author$project$Main$appView = F2(
 	function (view_comp, model) {
+		var modificationButtons = function () {
+			var _v0 = model.route;
+			if ((_v0.$ === 'Just') && (_v0.a.$ === 'ReportPrediction')) {
+				var idx = _v0.a.a;
+				return _List_fromArray(
+					[
+						A2(
+						$elm$html$Html$p,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick($author$project$Main$ClickHomeButton),
+								$elm$html$Html$Attributes$title('Go home')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('🏠')
+							])),
+						A2(
+						$elm$html$Html$p,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick($author$project$Main$ClickNewButton),
+								$elm$html$Html$Attributes$title('Add new prediction')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('➕')
+							])),
+						A2(
+						$elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('🖊️')
+							])),
+						A2(
+						$elm$html$Html$p,
+						_List_Nil,
+						_List_fromArray(
+							[
+								$elm$html$Html$text('🗑️')
+							]))
+					]);
+			} else {
+				return _List_fromArray(
+					[
+						A2(
+						$elm$html$Html$p,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick($author$project$Main$ClickHomeButton),
+								$elm$html$Html$Attributes$title('Go home')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('🏠')
+							])),
+						A2(
+						$elm$html$Html$p,
+						_List_fromArray(
+							[
+								$elm$html$Html$Events$onClick($author$project$Main$ClickNewButton),
+								$elm$html$Html$Attributes$title('Add new prediction')
+							]),
+						_List_fromArray(
+							[
+								$elm$html$Html$text('➕')
+							]))
+					]);
+			}
+		}();
 		return _List_fromArray(
 			[
 				A2(
@@ -6549,29 +6621,7 @@ var $author$project$Main$appView = F2(
 									[
 										$elm$html$Html$Attributes$id('current')
 									]),
-								_List_fromArray(
-									[
-										A2(
-										$elm$html$Html$p,
-										_List_fromArray(
-											[
-												$elm$html$Html$Events$onClick($author$project$Main$ClickHomeButton)
-											]),
-										_List_fromArray(
-											[
-												$elm$html$Html$text('🏠')
-											])),
-										A2(
-										$elm$html$Html$p,
-										_List_fromArray(
-											[
-												$elm$html$Html$Events$onClick($author$project$Main$ClickNewButton)
-											]),
-										_List_fromArray(
-											[
-												$elm$html$Html$text('➕')
-											]))
-									]))
+								modificationButtons)
 							]))
 					]))
 			]);
@@ -7169,7 +7219,7 @@ var $author$project$Main$reportView = F2(
 						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$text('So, I was '),
+								$elm$html$Html$text('Let it be known that I was '),
 								matchText
 							])),
 						A2(

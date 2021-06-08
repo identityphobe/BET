@@ -7,7 +7,7 @@ import Browser.Dom as Dom
 import Browser.Navigation as Nav
 import Dict
 import Html exposing (..)
-import Html.Attributes as Attributes exposing (class, href, id, placeholder, type_, value)
+import Html.Attributes as Attributes exposing (class, href, id, placeholder, title, type_, value)
 import Html.Events exposing (onClick, onInput)
 import Json.Decode as Decode exposing (Decoder, Error(..), decodeString, field, index, int, map4, string)
 import Json.Encode as Encode
@@ -424,9 +424,21 @@ view model =
 
 appView : (Model -> Html Msg) -> Model -> List (Html Msg)
 appView view_comp model =
+    let
+        modificationButtons =
+            case model.route of
+                Just (ReportPrediction idx) ->
+                    [ p [ onClick ClickHomeButton, title "Go home" ] [ text "🏠" ], p [ onClick ClickNewButton, title "Add new prediction" ] [ text "➕" ], p [] [ text "🖊️" ], p [] [ text "🗑️" ] ]
+
+                _ ->
+                    [ p [ onClick ClickHomeButton, title "Go home" ] [ text "🏠" ], p [ onClick ClickNewButton, title "Add new prediction" ] [ text "➕" ] ]
+    in
     [ div [ id "app-container" ]
         [ view_comp model
-        , div [ id "nav-bar" ] [ div [ id "current" ] [ p [ onClick ClickHomeButton ] [ text "🏠" ], p [ onClick ClickNewButton ] [ text "➕" ] ] ]
+        , div [ id "nav-bar" ]
+            [ div [ id "current" ]
+                modificationButtons
+            ]
         ]
     ]
 
@@ -510,7 +522,7 @@ reportView idx model =
                  else
                     [ p [] [ text "I thought ", span [ class "report-activity-name" ] [ text activityName ], text " would be ", span [ class expectedDifficultyString ] [ strong [] [ text expectedDifficultyString ] ], text "." ]
                     , p [] [ text "But, it is actually ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyStringFromInt model.rangeInput ] ] ]
-                    , p [] [ text "So, I was ", matchText ]
+                    , p [] [ text "Let it be known that I was ", matchText ]
                     , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
                     , button [ id "submitButton", onClick (SubmitReport idx) ] [ text "Report" ]
                     ]
