@@ -6481,14 +6481,18 @@ var $author$project$Main$update = F2(
 						$elm$browser$Browser$Navigation$pushUrl,
 						model.key,
 						'report?id=' + $elm$core$String$fromInt(id)));
-			default:
+			case 'ClickHomeButton':
 				return _Utils_Tuple2(
 					model,
 					A2($elm$browser$Browser$Navigation$pushUrl, model.key, '/'));
+			default:
+				return _Utils_Tuple2(
+					model,
+					A2($elm$browser$Browser$Navigation$pushUrl, model.key, '/new'));
 		}
 	});
-var $elm$html$Html$a = _VirtualDom_node('a');
 var $author$project$Main$ClickHomeButton = {$: 'ClickHomeButton'};
+var $author$project$Main$ClickNewButton = {$: 'ClickNewButton'};
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
@@ -6535,8 +6539,7 @@ var $author$project$Main$appView = F2(
 						$elm$html$Html$div,
 						_List_fromArray(
 							[
-								$elm$html$Html$Attributes$id('nav-bar'),
-								$elm$html$Html$Events$onClick($author$project$Main$ClickHomeButton)
+								$elm$html$Html$Attributes$id('nav-bar')
 							]),
 						_List_fromArray(
 							[
@@ -6550,22 +6553,29 @@ var $author$project$Main$appView = F2(
 									[
 										A2(
 										$elm$html$Html$p,
-										_List_Nil,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick($author$project$Main$ClickHomeButton)
+											]),
 										_List_fromArray(
 											[
 												$elm$html$Html$text('🏠')
+											])),
+										A2(
+										$elm$html$Html$p,
+										_List_fromArray(
+											[
+												$elm$html$Html$Events$onClick($author$project$Main$ClickNewButton)
+											]),
+										_List_fromArray(
+											[
+												$elm$html$Html$text('➕')
 											]))
 									]))
 							]))
 					]))
 			]);
 	});
-var $elm$html$Html$Attributes$href = function (url) {
-	return A2(
-		$elm$html$Html$Attributes$stringProperty,
-		'href',
-		_VirtualDom_noJavaScriptUri(url));
-};
 var $author$project$Main$PredictionInput = function (a) {
 	return {$: 'PredictionInput', a: a};
 };
@@ -6731,7 +6741,6 @@ var $author$project$Main$inputView = function (model) {
 						]))
 				])));
 };
-var $elm$html$Html$li = _VirtualDom_node('li');
 var $author$project$Main$OpenReportPage = function (a) {
 	return {$: 'OpenReportPage', a: a};
 };
@@ -6923,7 +6932,10 @@ var $author$project$Main$createListItem = function (pred) {
 		$author$project$Main$createListContent(pred));
 };
 var $author$project$Main$createList = function (model) {
-	return A2($elm$core$List$map, $author$project$Main$createListItem, model.predictionList);
+	return A2(
+		$elm$core$List$map,
+		$author$project$Main$createListItem,
+		$elm$core$List$reverse(model.predictionList));
 };
 var $author$project$Main$predictionListView = function (model) {
 	return A2(
@@ -7202,35 +7214,7 @@ var $author$project$Main$view = function (model) {
 			if (_v0.$ === 'Just') {
 				if (_v0.a.$ === 'NewPrediction') {
 					var _v1 = _v0.a;
-					return _List_fromArray(
-						[
-							A2(
-							$elm$html$Html$div,
-							_List_fromArray(
-								[
-									$elm$html$Html$Attributes$id('app-container')
-								]),
-							_List_fromArray(
-								[
-									A2(
-									$elm$html$Html$li,
-									_List_Nil,
-									_List_fromArray(
-										[
-											A2(
-											$elm$html$Html$a,
-											_List_fromArray(
-												[
-													$elm$html$Html$Attributes$href('/')
-												]),
-											_List_fromArray(
-												[
-													$elm$html$Html$text('/')
-												]))
-										])),
-									$author$project$Main$inputView(model)
-								]))
-						]);
+					return A2($author$project$Main$appView, $author$project$Main$inputView, model);
 				} else {
 					var idx = _v0.a.a;
 					if (idx.$ === 'Just') {

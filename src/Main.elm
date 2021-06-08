@@ -253,6 +253,7 @@ type Msg
     | OpenReportPage Int
     | SavePredictions
     | ClickHomeButton
+    | ClickNewButton
 
 
 
@@ -302,6 +303,9 @@ update msg model =
 
         ClickHomeButton ->
             ( model, Nav.pushUrl model.key "/" )
+
+        ClickNewButton ->
+            ( model, Nav.pushUrl model.key "/new" )
 
 
 createModelAfterSubmission : Model -> Model
@@ -397,30 +401,17 @@ type alias Document msg =
 
 view : Model -> Document Msg
 view model =
-    -- (Debug.log <|
-    --     Url.toString model.route
-    -- )
     { title = "BET"
     , body =
         case model.route of
             Just NewPrediction ->
-                [ div [ id "app-container" ]
-                    [ li [] [ a [ href "/" ] [ text "/" ] ]
-                    , inputView model
-                    ]
-                ]
+                appView inputView model
 
             Just (ReportPrediction idx) ->
                 case idx of
                     Just num ->
                         appView (reportView num) model
 
-                    -- [ div [ id "app-container" ]
-                    --     [ reportView
-                    --         num
-                    --         model
-                    --     ]
-                    -- ]
                     Nothing ->
                         [ div [ id "app-container" ]
                             [ text "Something's wrong with your report url. Make sure the id is there and a proper integer." ]
@@ -435,7 +426,7 @@ appView : (Model -> Html Msg) -> Model -> List (Html Msg)
 appView view_comp model =
     [ div [ id "app-container" ]
         [ view_comp model
-        , div [ id "nav-bar", onClick ClickHomeButton ] [ div [ id "current" ] [ p [] [ text "🏠" ] ] ]
+        , div [ id "nav-bar" ] [ div [ id "current" ] [ p [ onClick ClickHomeButton ] [ text "🏠" ], p [ onClick ClickNewButton ] [ text "➕" ] ] ]
         ]
     ]
 
@@ -635,7 +626,7 @@ predictionListView model =
 
 createList : Model -> List (Html Msg)
 createList model =
-    List.map createListItem model.predictionList
+    List.map createListItem (List.reverse model.predictionList)
 
 
 createListItem : Prediction -> Html Msg
