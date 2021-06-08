@@ -252,6 +252,7 @@ type Msg
     | UrlChanged Url.Url
     | OpenReportPage Int
     | SavePredictions
+    | DeletePrediction Int
     | ClickHomeButton
     | ClickNewButton
 
@@ -272,6 +273,9 @@ update msg model =
 
         SavePredictions ->
             ( model, savePredictions model.predictionList )
+
+        DeletePrediction id ->
+            ( deletePrediction model id, Cmd.none )
 
         EmptyInput ->
             ( model, Cmd.none )
@@ -323,6 +327,15 @@ createModelAfterSubmission model =
         -- consider storing this as JSON or remove it altogether
         , predictionsCreated = getMaxId model.predictionList + 1
     }
+
+
+deletePrediction : Model -> Int -> Model
+deletePrediction model id =
+    let
+        filteredPredictions =
+            List.filter (\pred -> pred.id /= id) model.predictionList
+    in
+    { model | predictionList = filteredPredictions }
 
 
 getMaxId : List Prediction -> Int
@@ -427,8 +440,13 @@ appView view_comp model =
     let
         modificationButtons =
             case model.route of
-                Just (ReportPrediction idx) ->
-                    [ p [ onClick ClickHomeButton, title "Go home" ] [ text "🏠" ], p [ onClick ClickNewButton, title "Add new prediction" ] [ text "➕" ], p [] [ text "🖊️" ], p [] [ text "🗑️" ] ]
+                Just (ReportPrediction id) ->
+                    case id of
+                        Just idx ->
+                            [ p [ onClick ClickHomeButton, title "Go home" ] [ text "🏠" ], p [ onClick ClickNewButton, title "Add new prediction" ] [ text "➕" ], p [] [ text "🖊️" ], p [ onClick (DeletePrediction idx) ] [ text "🗑️" ] ]
+
+                        Nothing ->
+                            [ p [ onClick ClickHomeButton, title "Go home" ] [ text "🏠" ], p [ onClick ClickNewButton, title "Add new prediction" ] [ text "➕" ] ]
 
                 _ ->
                     [ p [ onClick ClickHomeButton, title "Go home" ] [ text "🏠" ], p [ onClick ClickNewButton, title "Add new prediction" ] [ text "➕" ] ]

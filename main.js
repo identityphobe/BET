@@ -6178,6 +6178,30 @@ var $author$project$Main$createModelAfterSubmission = function (model) {
 			rangeInput: 3
 		});
 };
+var $elm$core$List$filter = F2(
+	function (isGood, list) {
+		return A3(
+			$elm$core$List$foldr,
+			F2(
+				function (x, xs) {
+					return isGood(x) ? A2($elm$core$List$cons, x, xs) : xs;
+				}),
+			_List_Nil,
+			list);
+	});
+var $elm$core$Basics$neq = _Utils_notEqual;
+var $author$project$Main$deletePrediction = F2(
+	function (model, id) {
+		var filteredPredictions = A2(
+			$elm$core$List$filter,
+			function (pred) {
+				return !_Utils_eq(pred.id, id);
+			},
+			model.predictionList);
+		return _Utils_update(
+			model,
+			{predictionList: filteredPredictions});
+	});
 var $elm$browser$Browser$Navigation$load = _Browser_load;
 var $elm$browser$Browser$Navigation$pushUrl = _Browser_pushUrl;
 var $elm$json$Json$Encode$string = _Json_wrap;
@@ -6420,6 +6444,11 @@ var $author$project$Main$update = F2(
 				return _Utils_Tuple2(
 					model,
 					$author$project$Main$savePredictions(model.predictionList));
+			case 'DeletePrediction':
+				var id = msg.a;
+				return _Utils_Tuple2(
+					A2($author$project$Main$deletePrediction, model, id),
+					$elm$core$Platform$Cmd$none);
 			case 'EmptyInput':
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 'PredictionInput':
@@ -6493,6 +6522,9 @@ var $author$project$Main$update = F2(
 	});
 var $author$project$Main$ClickHomeButton = {$: 'ClickHomeButton'};
 var $author$project$Main$ClickNewButton = {$: 'ClickNewButton'};
+var $author$project$Main$DeletePrediction = function (a) {
+	return {$: 'DeletePrediction', a: a};
+};
 var $elm$html$Html$div = _VirtualDom_node('div');
 var $elm$html$Html$Attributes$stringProperty = F2(
 	function (key, string) {
@@ -6528,46 +6560,79 @@ var $author$project$Main$appView = F2(
 		var modificationButtons = function () {
 			var _v0 = model.route;
 			if ((_v0.$ === 'Just') && (_v0.a.$ === 'ReportPrediction')) {
-				var idx = _v0.a.a;
-				return _List_fromArray(
-					[
-						A2(
-						$elm$html$Html$p,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick($author$project$Main$ClickHomeButton),
-								$elm$html$Html$Attributes$title('Go home')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('🏠')
-							])),
-						A2(
-						$elm$html$Html$p,
-						_List_fromArray(
-							[
-								$elm$html$Html$Events$onClick($author$project$Main$ClickNewButton),
-								$elm$html$Html$Attributes$title('Add new prediction')
-							]),
-						_List_fromArray(
-							[
-								$elm$html$Html$text('➕')
-							])),
-						A2(
-						$elm$html$Html$p,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text('🖊️')
-							])),
-						A2(
-						$elm$html$Html$p,
-						_List_Nil,
-						_List_fromArray(
-							[
-								$elm$html$Html$text('🗑️')
-							]))
-					]);
+				var id = _v0.a.a;
+				if (id.$ === 'Just') {
+					var idx = id.a;
+					return _List_fromArray(
+						[
+							A2(
+							$elm$html$Html$p,
+							_List_fromArray(
+								[
+									$elm$html$Html$Events$onClick($author$project$Main$ClickHomeButton),
+									$elm$html$Html$Attributes$title('Go home')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('🏠')
+								])),
+							A2(
+							$elm$html$Html$p,
+							_List_fromArray(
+								[
+									$elm$html$Html$Events$onClick($author$project$Main$ClickNewButton),
+									$elm$html$Html$Attributes$title('Add new prediction')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('➕')
+								])),
+							A2(
+							$elm$html$Html$p,
+							_List_Nil,
+							_List_fromArray(
+								[
+									$elm$html$Html$text('🖊️')
+								])),
+							A2(
+							$elm$html$Html$p,
+							_List_fromArray(
+								[
+									$elm$html$Html$Events$onClick(
+									$author$project$Main$DeletePrediction(idx))
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('🗑️')
+								]))
+						]);
+				} else {
+					return _List_fromArray(
+						[
+							A2(
+							$elm$html$Html$p,
+							_List_fromArray(
+								[
+									$elm$html$Html$Events$onClick($author$project$Main$ClickHomeButton),
+									$elm$html$Html$Attributes$title('Go home')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('🏠')
+								])),
+							A2(
+							$elm$html$Html$p,
+							_List_fromArray(
+								[
+									$elm$html$Html$Events$onClick($author$project$Main$ClickNewButton),
+									$elm$html$Html$Attributes$title('Add new prediction')
+								]),
+							_List_fromArray(
+								[
+									$elm$html$Html$text('➕')
+								]))
+						]);
+				}
 			} else {
 				return _List_fromArray(
 					[
@@ -7020,7 +7085,6 @@ var $author$project$Utils$find = F2(
 			}
 		}
 	});
-var $elm$core$Basics$neq = _Utils_notEqual;
 var $elm$core$Tuple$second = function (_v0) {
 	var y = _v0.b;
 	return y;
