@@ -6446,9 +6446,10 @@ var $author$project$Main$update = F2(
 					$author$project$Main$savePredictions(model.predictionList));
 			case 'DeletePrediction':
 				var id = msg.a;
-				return _Utils_Tuple2(
-					A2($author$project$Main$deletePrediction, model, id),
-					$elm$core$Platform$Cmd$none);
+				return A2(
+					$author$project$Main$update,
+					$author$project$Main$SavePredictions,
+					A2($author$project$Main$deletePrediction, model, id));
 			case 'EmptyInput':
 				return _Utils_Tuple2(model, $elm$core$Platform$Cmd$none);
 			case 'PredictionInput':

@@ -275,7 +275,7 @@ update msg model =
             ( model, savePredictions model.predictionList )
 
         DeletePrediction id ->
-            ( deletePrediction model id, Cmd.none )
+            update SavePredictions <| deletePrediction model id
 
         EmptyInput ->
             ( model, Cmd.none )
