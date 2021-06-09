@@ -6590,13 +6590,6 @@ var $author$project$Main$appView = F2(
 								])),
 							A2(
 							$elm$html$Html$p,
-							_List_Nil,
-							_List_fromArray(
-								[
-									$elm$html$Html$text('🖊️')
-								])),
-							A2(
-							$elm$html$Html$p,
 							_List_fromArray(
 								[
 									$elm$html$Html$Events$onClick(
@@ -6796,7 +6789,8 @@ var $author$project$Main$inputView = function (model) {
 					_List_fromArray(
 						[
 							$elm$html$Html$Attributes$class(
-							$author$project$Main$setDifficultyClass(model.rangeInput))
+							$author$project$Main$setDifficultyClass(model.rangeInput)),
+							$elm$html$Html$Attributes$id('input-text')
 						]),
 					_List_fromArray(
 						[
@@ -7145,7 +7139,7 @@ var $author$project$Main$reportView = F2(
 				$elm$html$Html$div,
 				_List_fromArray(
 					[
-						$elm$html$Html$Attributes$class('input-container')
+						$elm$html$Html$Attributes$class('input-container report-container')
 					]),
 				(!_Utils_eq(actualDifficulty, $author$project$Main$DifficultyUnknown)) ? _List_fromArray(
 					[
@@ -7214,7 +7208,7 @@ var $author$project$Main$reportView = F2(
 						_List_Nil,
 						_List_fromArray(
 							[
-								$elm$html$Html$text('So, I was '),
+								$elm$html$Html$text('Let it be known that I was '),
 								matchText
 							]))
 					]) : _List_fromArray(

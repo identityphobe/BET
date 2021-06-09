@@ -1,9 +1,20 @@
+/* General */
+
 * {
   font-family: "Roboto", sans-serif;
 }
 
 html {
   background-color: #eaf3ff;
+}
+
+:root {
+  --unknown-color: #a3a9a3;
+  --easy-color: #16db93;
+  --doable-color: #3a86ff;
+  --difficult-color: #ffbe0b;
+  --very-difficult-color: #fb5607;
+  --impossible-color: #bf0603;
 }
 
 button {
@@ -16,18 +27,27 @@ body {
 
 #app-container {
   background-color: #eaf3ff;
+  margin-top: 50px;
   height: 100%;
 }
 
+/* Prediction Input */
+
 .input-container {
   text-align: center;
+  margin: auto 40px;
+}
+
+/* Horrible! */
+
+.report-container p {
+  text-align: left;
 }
 
 #action-input {
-  width: 325px;
+  width: 100%;
+  max-width: 325px;
   height: 51px;
-  margin: 70px auto;
-  margin-bottom: 20px;
   text-align: center;
   background: #f7f7f7;
   border-radius: 5px;
@@ -37,15 +57,6 @@ body {
 
 #action-input::placeholder {
   color: rgba(0, 0, 0, 0.2);
-}
-
-:root {
-  --unknown-color: #a3a9a3;
-  --easy-color: #16db93;
-  --doable-color: #3a86ff;
-  --difficult-color: #ffbe0b;
-  --very-difficult-color: #fb5607;
-  --impossible-color: #bf0603;
 }
 
 .unknown {

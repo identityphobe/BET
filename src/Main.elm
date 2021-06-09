@@ -443,7 +443,7 @@ appView view_comp model =
                 Just (ReportPrediction id) ->
                     case id of
                         Just idx ->
-                            [ p [ onClick ClickHomeButton, title "Go home" ] [ text "🏠" ], p [ onClick ClickNewButton, title "Add new prediction" ] [ text "➕" ], p [] [ text "🖊️" ], p [ onClick (DeletePrediction idx) ] [ text "🗑️" ] ]
+                            [ p [ onClick ClickHomeButton, title "Go home" ] [ text "🏠" ], p [ onClick ClickNewButton, title "Add new prediction" ] [ text "➕" ], p [ onClick (DeletePrediction idx) ] [ text "🗑️" ] ]
 
                         Nothing ->
                             [ p [ onClick ClickHomeButton, title "Go home" ] [ text "🏠" ], p [ onClick ClickNewButton, title "Add new prediction" ] [ text "➕" ] ]
@@ -466,7 +466,7 @@ inputView model =
     let
         defaultInputContainer =
             [ input [ id "action-input", placeholder "I think...", value model.formInput, onInput PredictionInput ] []
-            , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyStringFromInt model.rangeInput ] ] ]
+            , p [] [ text "...is ", span [ class <| setDifficultyClass model.rangeInput, id "input-text" ] [ strong [] [ text <| difficultyStringFromInt model.rangeInput ] ] ]
             , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
             , button [ id "submitButton", onClick SubmitPrediction ] [ text "Test It" ]
             ]
@@ -498,11 +498,6 @@ reportView idx model =
         actualDifficulty =
             Tuple.second activityDifficulty
 
-        -- case Tuple.second activityDifficulty of
-        --     DifficultyUnknown ->
-        --         difficultyFromInt model.rangeInput
-        --     _ ->
-        --         Tuple.second activityDifficulty
         prediction =
             Utils.find (\pred -> pred.id == idx) model.predictionList
 
@@ -518,23 +513,15 @@ reportView idx model =
 
                 Nothing ->
                     p [] [ text "No match up, sonny" ]
-
-        -- defaultInputContainer =
-        --     [ p [] [ text "I thought ", span [ class "report-activity-name" ] [ text activityName ], text " would be ", span [ class expectedDifficultyString ] [ strong [] [ text expectedDifficultyString ] ], text "." ]
-        --     , p [] [ text "But, it is actually ", span [ class <| setDifficultyClass model.rangeInput ] [ strong [] [ text <| difficultyStringFromInt model.rangeInput ] ] ]
-        --     , p [] [ text "So, I was ", matchText ]
-        --     , input [ type_ "range", Attributes.min "1", Attributes.max "5", value <| String.fromInt model.rangeInput, onInput RangeInput ] []
-        --     , button [ id "submitButton", onClick (SubmitReport idx) ] [ text "Report" ]
-        --     ]
     in
     case prediction of
         Just _ ->
             -- TODO: Refactor this
-            div [ class "input-container" ]
+            div [ class "input-container report-container" ]
                 (if actualDifficulty /= DifficultyUnknown then
                     [ p [] [ text "I thought ", span [ class "report-activity-name" ] [ text activityName ], text " would be ", span [ class expectedDifficultyString ] [ strong [] [ text expectedDifficultyString ] ], text "." ]
                     , p [] [ text "But, it is actually ", span [ class <| stringFromDifficulty actualDifficulty ] [ strong [] [ text <| stringFromDifficulty actualDifficulty ] ] ]
-                    , p [] [ text "So, I was ", matchText ]
+                    , p [] [ text "Let it be known that I was ", matchText ]
                     ]
 
                  else
