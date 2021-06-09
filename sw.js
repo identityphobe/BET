@@ -8,6 +8,9 @@ const cacheName = 'BETpwa-v1';
     '/main.js',
     ];
 
+console.log("app.js is running");
+contentToCache = appShellFiles;
+
 self.addEventListener('install', (e) => {
     console.log('[Service Worker] Install');
     e.waitUntil((async () => {
